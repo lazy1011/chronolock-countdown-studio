@@ -12,18 +12,29 @@ import {
   CheckCircle2, 
   Circle, 
   Wand2, 
-  Eye, 
   Download, 
   Maximize2, 
   FileText, 
-  Sliders,
   Layers,
-  HelpCircle,
-  Share2
+  ArrowRight,
+  Flame,
+  ShieldCheck,
+  Zap,
+  Sliders
 } from 'lucide-react';
+
 import { PRESET_DEADLINES, PRESET_THEMES, DEVICE_PROFILES } from '../constants/presets';
-import { generateSmartMilestones, generateGeminiMilestones } from '../utils/aiScheduler';
+import { generateGeminiMilestones } from '../utils/aiScheduler';
 import { exportToICS } from '../utils/calendarExport';
+
+// shadcn/ui components
+import { Button } from './ui/button';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
+import { Badge } from './ui/badge';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
+import { Switch } from './ui/switch';
+import { Input } from './ui/input';
+import { Textarea } from './ui/textarea';
 
 export default function ControlsPanel({
   deadline,
@@ -42,7 +53,6 @@ export default function ControlsPanel({
   onOpenExport,
   onOpenSubmissionKit
 }) {
-  const [activeTab, setActiveTab] = useState('milestones'); // 'milestones' | 'style' | 'deadline'
   const [isAiGenerating, setIsAiGenerating] = useState(false);
   const [geminiApiKey, setGeminiApiKey] = useState('');
   const [showApiKeyInput, setShowApiKeyInput] = useState(false);
@@ -102,145 +112,136 @@ export default function ControlsPanel({
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-2xl backdrop-blur-2xl">
-      {/* Top Header & Presets */}
+    <Card className="h-full flex flex-col border-zinc-800/80 bg-zinc-950/85 shadow-2xl backdrop-blur-2xl p-5">
+      {/* Top Header & Submission Kit Trigger */}
       <div className="mb-4">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-cyan-400 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
+        <div className="flex items-center justify-between mb-3.5">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-500 to-cyan-400 flex items-center justify-center text-white shadow-md shadow-indigo-500/25">
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white tracking-tight">Studio Configuration</h2>
-              <p className="text-xs text-slate-400">Your Deadline, Your Design</p>
+              <div className="flex items-center gap-2">
+                <h2 className="text-sm font-bold text-white tracking-tight">Studio Configuration</h2>
+                <Badge variant="outline" className="text-[10px] py-0 text-cyan-400 border-cyan-500/30">
+                  v1.2
+                </Badge>
+              </div>
+              <p className="text-[11px] text-zinc-400">Your Deadline, Your Design</p>
             </div>
           </div>
-          <button
+          <Button
+            variant="outline"
+            size="sm"
             onClick={onOpenSubmissionKit}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 text-xs font-semibold border border-indigo-500/30 transition shadow-sm"
+            className="border-indigo-500/30 text-indigo-300 hover:bg-indigo-950/40 hover:text-white gap-1.5"
           >
             <FileText className="w-3.5 h-3.5 text-cyan-400" />
             <span>Submission Kit</span>
-          </button>
+          </Button>
         </div>
 
         {/* Quick Presets Pills */}
-        <div className="space-y-1">
-          <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Quick Presets</label>
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">Quick Presets</span>
+            <span className="text-[10px] text-zinc-500">1-click presets</span>
+          </div>
           <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
             {PRESET_DEADLINES.map(p => (
               <button
                 key={p.id}
                 onClick={() => handleSelectPreset(p)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition border ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all border ${
                   deadline.title === p.title
                     ? 'bg-indigo-600 text-white border-indigo-500 shadow-md shadow-indigo-600/30'
-                    : 'bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 border-slate-700'
+                    : 'bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 border-zinc-800'
                 }`}
               >
-                {p.title.split(' ')[0]} {p.category === 'Competition / Hackathon' ? '🏆' : ''}
+                {p.title.split(' ')[0]} {p.category.includes('Competition') ? '🏆' : ''}
               </button>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="flex border-b border-slate-800 mb-4">
-        <button
-          onClick={() => setActiveTab('milestones')}
-          className={`flex-1 py-2 text-xs font-semibold border-b-2 flex items-center justify-center gap-1.5 transition ${
-            activeTab === 'milestones'
-              ? 'border-indigo-500 text-indigo-400'
-              : 'border-transparent text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <Layers className="w-3.5 h-3.5" />
-          <span>Milestones ({milestones.length})</span>
-        </button>
-        <button
-          onClick={() => setActiveTab('style')}
-          className={`flex-1 py-2 text-xs font-semibold border-b-2 flex items-center justify-center gap-1.5 transition ${
-            activeTab === 'style'
-              ? 'border-indigo-500 text-indigo-400'
-              : 'border-transparent text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <Palette className="w-3.5 h-3.5" />
-          <span>Theme & Device</span>
-        </button>
-        <button
-          onClick={() => setActiveTab('deadline')}
-          className={`flex-1 py-2 text-xs font-semibold border-b-2 flex items-center justify-center gap-1.5 transition ${
-            activeTab === 'deadline'
-              ? 'border-indigo-500 text-indigo-400'
-              : 'border-transparent text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <Clock className="w-3.5 h-3.5" />
-          <span>Deadline Info</span>
-        </button>
-      </div>
+      {/* Tabs Layout */}
+      <Tabs defaultValue="milestones" className="flex-1 flex flex-col overflow-hidden">
+        <TabsList className="grid grid-cols-3 w-full bg-zinc-900/90 border border-zinc-800/80 p-1 mb-3">
+          <TabsTrigger value="milestones" className="gap-1.5 text-xs">
+            <Layers className="w-3.5 h-3.5" />
+            <span>Milestones ({milestones.length})</span>
+          </TabsTrigger>
+          <TabsTrigger value="style" className="gap-1.5 text-xs">
+            <Palette className="w-3.5 h-3.5" />
+            <span>Theme & Safe Zones</span>
+          </TabsTrigger>
+          <TabsTrigger value="deadline" className="gap-1.5 text-xs">
+            <Clock className="w-3.5 h-3.5" />
+            <span>Deadline Details</span>
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Tab Body: Scrollable */}
-      <div className="flex-1 overflow-y-auto pr-1 space-y-4">
-        {/* TAB 1: MILESTONES */}
-        {activeTab === 'milestones' && (
-          <div className="space-y-3">
-            {/* AI Generator Banner */}
-            <div className="p-3 rounded-2xl bg-gradient-to-r from-indigo-950/60 to-purple-950/60 border border-indigo-500/30 flex flex-col gap-2 shadow-inner">
-              <div className="flex items-center justify-between">
+        <div className="flex-1 overflow-y-auto pr-1">
+          {/* TAB 1: MILESTONES */}
+          <TabsContent value="milestones" className="space-y-3 mt-0">
+            {/* AI Backward Planner Card */}
+            <Card className="border-indigo-500/30 bg-gradient-to-br from-indigo-950/40 via-zinc-900/60 to-purple-950/30 p-3.5 shadow-inner">
+              <div className="flex items-center justify-between mb-1.5">
                 <div className="flex items-center gap-2">
                   <Wand2 className="w-4 h-4 text-cyan-400 animate-pulse" />
-                  <span className="text-xs font-bold text-white">AI Backward Milestone Planner</span>
+                  <span className="text-xs font-bold text-white">Gemini AI Backward Planner</span>
                 </div>
-                <button
+                <Button
+                  size="sm"
                   onClick={handleAiDecompose}
                   disabled={isAiGenerating}
-                  className="px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-[11px] font-semibold transition flex items-center gap-1 shadow-sm"
+                  className="h-7 text-[11px] gap-1 bg-indigo-600 hover:bg-indigo-500"
                 >
                   <Sparkles className="w-3 h-3 text-amber-300" />
-                  {isAiGenerating ? 'Generating...' : 'Auto-Decompose'}
-                </button>
+                  {isAiGenerating ? 'Synthesizing...' : 'Auto-Decompose'}
+                </Button>
               </div>
-              <p className="text-[11px] text-slate-400">
-                Uses Google Gemini backward-planning algorithm to reverse-engineer key checkpoints before your deadline.
+              <p className="text-[11px] text-zinc-400 leading-relaxed">
+                Reverse-engineers target date into 5 tactical checkpoints leading directly to the finish line.
               </p>
-              
-              <div className="pt-1">
+
+              <div className="mt-2 pt-1.5 border-t border-zinc-800/60">
                 <button
+                  type="button"
                   onClick={() => setShowApiKeyInput(!showApiKeyInput)}
-                  className="text-[10px] text-indigo-400 hover:underline flex items-center gap-1"
+                  className="text-[10px] text-indigo-400 hover:text-indigo-300 transition flex items-center gap-1"
                 >
-                  <span>{showApiKeyInput ? 'Hide Gemini API Key' : '+ Use custom Google Gemini API Key'}</span>
+                  <span>{showApiKeyInput ? 'Hide Custom Gemini Key' : '+ Add custom Google Gemini API key'}</span>
                 </button>
                 {showApiKeyInput && (
-                  <input
+                  <Input
                     type="password"
                     placeholder="Enter Google Gemini API key (optional)"
                     value={geminiApiKey}
                     onChange={(e) => setGeminiApiKey(e.target.value)}
-                    className="w-full mt-1.5 px-2.5 py-1 text-[11px] rounded-lg bg-black/50 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                    className="mt-1.5 h-8 text-[11px] bg-black/60 border-zinc-800"
                   />
                 )}
               </div>
-            </div>
+            </Card>
 
-            {/* Milestone List */}
+            {/* Milestones Checkpoint List */}
             <div className="space-y-2">
               {milestones.map((m, idx) => (
-                <div 
+                <div
                   key={m.id || idx}
-                  className="p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/60 flex items-start gap-2 group hover:border-slate-600 transition"
+                  className="p-2.5 rounded-xl bg-zinc-900/80 border border-zinc-800/80 flex items-start gap-2.5 group hover:border-zinc-700 transition"
                 >
                   <button
+                    type="button"
                     onClick={() => handleToggleMilestone(m.id)}
-                    className="mt-1 flex-shrink-0 text-slate-400 hover:text-emerald-400 transition"
+                    className="mt-1 flex-shrink-0 text-zinc-500 hover:text-emerald-400 transition"
                   >
                     {m.done ? (
                       <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                     ) : (
-                      <Circle className="w-4 h-4 text-slate-500" />
+                      <Circle className="w-4 h-4 text-zinc-600 hover:text-zinc-400" />
                     )}
                   </button>
 
@@ -253,7 +254,7 @@ export default function ControlsPanel({
                           const val = e.target.value;
                           setMilestones(prev => prev.map(item => item.id === m.id ? { ...item, title: val } : item));
                         }}
-                        className={`w-full text-xs font-semibold bg-transparent border-b border-transparent hover:border-slate-600 focus:border-indigo-500 focus:outline-none ${m.done ? 'line-through text-slate-400' : 'text-slate-100'}`}
+                        className={`w-full text-xs font-semibold bg-transparent border-b border-transparent hover:border-zinc-700 focus:border-indigo-500 focus:outline-none transition ${m.done ? 'line-through text-zinc-500' : 'text-zinc-100'}`}
                       />
                       <input
                         type="text"
@@ -262,7 +263,7 @@ export default function ControlsPanel({
                           const val = e.target.value;
                           setMilestones(prev => prev.map(item => item.id === m.id ? { ...item, date: val } : item));
                         }}
-                        className="w-24 text-[10px] font-mono text-right text-slate-400 bg-transparent border-b border-transparent hover:border-slate-600 focus:border-indigo-500 focus:outline-none flex-shrink-0"
+                        className="w-24 text-[10px] font-mono text-right text-zinc-400 bg-transparent border-b border-transparent hover:border-zinc-700 focus:border-indigo-500 focus:outline-none flex-shrink-0"
                       />
                     </div>
                     <input
@@ -273,13 +274,14 @@ export default function ControlsPanel({
                         const val = e.target.value;
                         setMilestones(prev => prev.map(item => item.id === m.id ? { ...item, note: val } : item));
                       }}
-                      className="w-full text-[10px] text-slate-400 bg-transparent border-b border-transparent hover:border-slate-600 focus:border-indigo-500 focus:outline-none"
+                      className="w-full text-[10px] text-zinc-400 bg-transparent border-b border-transparent hover:border-zinc-700 focus:border-indigo-500 focus:outline-none"
                     />
                   </div>
 
                   <button
+                    type="button"
                     onClick={() => handleDeleteMilestone(m.id)}
-                    className="opacity-0 group-hover:opacity-100 text-slate-500 hover:text-rose-400 p-1 transition"
+                    className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-rose-400 p-1 transition"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -287,82 +289,78 @@ export default function ControlsPanel({
               ))}
             </div>
 
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               onClick={handleAddMilestone}
-              className="w-full py-2 rounded-xl bg-slate-800/60 hover:bg-slate-700/60 text-slate-300 text-xs font-semibold border border-dashed border-slate-700 flex items-center justify-center gap-1.5 transition"
+              className="w-full border-dashed border-zinc-700 hover:border-zinc-600 gap-1.5"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Add Custom Milestone Checkpoint</span>
-            </button>
-          </div>
-        )}
+            </Button>
+          </TabsContent>
 
-        {/* TAB 2: STYLE & THEMES */}
-        {activeTab === 'style' && (
-          <div className="space-y-4">
+          {/* TAB 2: STYLE & DEVICE */}
+          <TabsContent value="style" className="space-y-4 mt-0">
             {/* Device Profiles */}
             <div>
-              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
-                Target Device Mockup
-              </label>
+              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block mb-2">
+                Device Mockup Preview
+              </span>
               <div className="grid grid-cols-3 gap-2">
                 {Object.values(DEVICE_PROFILES).map(d => (
                   <button
                     key={d.id}
                     onClick={() => setDeviceProfileId(d.id)}
-                    className={`p-2 rounded-xl text-left border transition ${
+                    className={`p-2.5 rounded-xl text-left border transition ${
                       deviceProfileId === d.id
-                        ? 'bg-indigo-600/20 border-indigo-500 text-white shadow-md'
-                        : 'bg-slate-800/60 border-slate-700/60 text-slate-400 hover:text-slate-200'
+                        ? 'bg-indigo-600/15 border-indigo-500 text-white shadow-sm'
+                        : 'bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-zinc-200'
                     }`}
                   >
                     <div className="flex items-center gap-1.5 mb-1">
                       {d.id === 'desktop4k' ? <Monitor className="w-3.5 h-3.5 text-cyan-400" /> : <Smartphone className="w-3.5 h-3.5 text-indigo-400" />}
                       <span className="text-xs font-bold leading-none">{d.id === 'iphone16pro' ? 'iPhone' : d.id === 'pixel9pro' ? 'Pixel 9' : 'Desktop'}</span>
                     </div>
-                    <span className="text-[9px] text-slate-400 block">{d.name}</span>
+                    <span className="text-[9px] text-zinc-500 block">{d.name}</span>
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Visual Display Toggles */}
-            <div className="p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60 space-y-2.5">
-              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-                Lock Screen Controls
-              </label>
+            {/* Radix Switches for Lock Screen Controls */}
+            <Card className="p-3.5 space-y-3 bg-zinc-900/60 border-zinc-800">
+              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
+                Lock Screen Hardware Controls
+              </span>
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-xs font-medium text-slate-200 block">Show Native OS Clock</span>
-                  <span className="text-[10px] text-slate-400">Simulate native iOS/Android lock screen clock</span>
+                  <span className="text-xs font-medium text-zinc-200 block">Show Native OS Clock</span>
+                  <span className="text-[10px] text-zinc-400">Simulate native lock screen clock & widgets</span>
                 </div>
-                <input
-                  type="checkbox"
+                <Switch
                   checked={showOsOverlay}
-                  onChange={(e) => setShowOsOverlay(e.target.checked)}
-                  className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-900 border-slate-700"
+                  onCheckedChange={setShowOsOverlay}
                 />
               </div>
 
-              <div className="flex items-center justify-between pt-2 border-t border-slate-700/60">
+              <div className="flex items-center justify-between pt-2.5 border-t border-zinc-800/80">
                 <div>
-                  <span className="text-xs font-medium text-slate-200 block">Safe Zone Overlays</span>
-                  <span className="text-[10px] text-slate-400">Highlight zones reserved for clock & icons</span>
+                  <span className="text-xs font-medium text-zinc-200 block">Safe Zone Overlays</span>
+                  <span className="text-[10px] text-zinc-400">Inspect negative space reserved for clock/icons</span>
                 </div>
-                <input
-                  type="checkbox"
+                <Switch
                   checked={showSafeZones}
-                  onChange={(e) => setShowSafeZones(e.target.checked)}
-                  className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-900 border-slate-700"
+                  onCheckedChange={setShowSafeZones}
                 />
               </div>
-            </div>
+            </Card>
 
-            {/* Themes */}
+            {/* Theme Presets */}
             <div>
-              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
+              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block mb-2">
                 Aesthetic Color Theme
-              </label>
+              </span>
               <div className="space-y-2">
                 {Object.values(PRESET_THEMES).map(t => (
                   <button
@@ -370,18 +368,18 @@ export default function ControlsPanel({
                     onClick={() => setThemeId(t.id)}
                     className={`w-full p-2.5 rounded-xl border flex items-center justify-between text-left transition ${
                       themeId === t.id
-                        ? 'bg-indigo-950/60 border-indigo-500 shadow-md shadow-indigo-950'
-                        : 'bg-slate-800/60 border-slate-700/60 hover:border-slate-600'
+                        ? 'bg-indigo-950/40 border-indigo-500 shadow-sm'
+                        : 'bg-zinc-900/60 border-zinc-800/80 hover:border-zinc-700'
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
                       <div 
-                        className="w-6 h-6 rounded-full border border-white/20 shadow-inner"
+                        className="w-5 h-5 rounded-full border border-white/20 shadow-inner"
                         style={{ backgroundColor: t.primaryColor }}
                       />
                       <div>
                         <span className="text-xs font-bold text-white block">{t.name}</span>
-                        <span className="text-[10px] text-slate-400">{t.description}</span>
+                        <span className="text-[10px] text-zinc-400">{t.description}</span>
                       </div>
                     </div>
                     {themeId === t.id && <Check className="w-4 h-4 text-indigo-400" />}
@@ -389,103 +387,101 @@ export default function ControlsPanel({
                 ))}
               </div>
             </div>
-          </div>
-        )}
+          </TabsContent>
 
-        {/* TAB 3: DEADLINE DETAILS */}
-        {activeTab === 'deadline' && (
-          <div className="space-y-3">
-            <div>
-              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+          {/* TAB 3: DEADLINE DETAILS */}
+          <TabsContent value="deadline" className="space-y-3.5 mt-0">
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
                 Project / Deadline Name
               </label>
-              <input
+              <Input
                 type="text"
                 value={deadline.title}
                 onChange={(e) => setDeadline({ ...deadline, title: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-white focus:outline-none focus:border-indigo-500"
               />
             </div>
 
-            <div>
-              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
                 Target Date & Time (ISO)
               </label>
-              <input
+              <Input
                 type="datetime-local"
                 value={deadline.targetDate.slice(0, 16)}
                 onChange={(e) => setDeadline({ ...deadline, targetDate: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-white font-mono focus:outline-none focus:border-indigo-500"
+                className="font-mono text-xs"
               />
             </div>
 
-            <div>
-              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
                 Category
               </label>
-              <input
+              <Input
                 type="text"
                 value={deadline.category}
                 onChange={(e) => setDeadline({ ...deadline, category: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-white focus:outline-none focus:border-indigo-500"
               />
             </div>
 
-            <div>
-              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
                 Tagline / Subtext
               </label>
-              <input
+              <Input
                 type="text"
                 value={deadline.tagline}
                 onChange={(e) => setDeadline({ ...deadline, tagline: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-white focus:outline-none focus:border-indigo-500"
               />
             </div>
 
-            <div>
-              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
                 Motivational Daily Anchor
               </label>
-              <textarea
+              <Textarea
                 rows={2}
                 value={deadline.dailyAnchor || ''}
                 onChange={(e) => setDeadline({ ...deadline, dailyAnchor: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-white focus:outline-none focus:border-indigo-500"
               />
             </div>
-          </div>
-        )}
-      </div>
+          </TabsContent>
+        </div>
+      </Tabs>
 
-      {/* Bottom Sticky Action Buttons */}
-      <div className="pt-4 mt-2 border-t border-slate-800 flex flex-col gap-2">
+      {/* Sticky Bottom Actions */}
+      <div className="pt-3.5 mt-2 border-t border-zinc-800/80 flex flex-col gap-2">
         <div className="grid grid-cols-2 gap-2">
-          <button
+          <Button
+            variant="secondary"
             onClick={onOpenAOD}
-            className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold border border-slate-700 flex items-center justify-center gap-1.5 transition shadow-sm"
+            className="gap-1.5"
           >
             <Maximize2 className="w-3.5 h-3.5 text-amber-400" />
             <span>Always-On Mode</span>
-          </button>
+          </Button>
 
-          <button
+          <Button
+            variant="secondary"
             onClick={() => exportToICS(deadline, milestones)}
-            className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold border border-slate-700 flex items-center justify-center gap-1.5 transition shadow-sm"
+            className="gap-1.5"
           >
             <Calendar className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Sync to Calendar</span>
-          </button>
+            <span>Sync Calendar</span>
+          </Button>
         </div>
 
-        <button
+        <Button
+          variant="gradient"
+          size="lg"
           onClick={onOpenExport}
-          className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/25 transition active:scale-[0.99]"
+          className="gap-2"
         >
           <Download className="w-4 h-4" />
           <span>Export Lock Screen Wallpaper (HD)</span>
-        </button>
+        </Button>
       </div>
-    </div>
+    </Card>
   );
 }
