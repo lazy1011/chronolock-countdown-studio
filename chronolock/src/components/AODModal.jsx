@@ -1,17 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { X, Flame, ShieldCheck, Sparkles, Volume2, VolumeX, Maximize, Clock } from 'lucide-react';
-import { PRESET_THEMES } from '../constants/presets';
+import { X, Clock, Battery, Signal, Wifi, CheckSquare, Sparkles } from 'lucide-react';
 
 export default function AODModal({
   isOpen,
   onClose,
   deadline,
   milestones,
-  themeId,
   timeRemaining
 }) {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const theme = PRESET_THEMES[themeId] || PRESET_THEMES.obsidian;
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -20,106 +17,133 @@ export default function AODModal({
 
   if (!isOpen) return null;
 
+  const currentHours = String(currentTime.getHours()).padStart(2, '0');
+  const currentMinutes = String(currentTime.getMinutes()).padStart(2, '0');
+  const currentSeconds = String(currentTime.getSeconds()).padStart(2, '0');
+
+  const dayName = currentTime.toLocaleDateString('en-US', { weekday: 'short' });
+  const dayNum = currentTime.getDate();
+  const monthName = currentTime.toLocaleDateString('en-US', { month: 'long' });
+  const aodDateFormatted = `${dayName}, ${dayNum} ${monthName}`;
+
   const completedCount = milestones.filter(m => m.done).length;
   const progressPercent = milestones.length > 0 ? Math.round((completedCount / milestones.length) * 100) : 0;
-  const activeMilestone = milestones.find(m => !m.done) || milestones[milestones.length - 1];
+  const nextMilestone = milestones.find(m => !m.done) || milestones[milestones.length - 1];
 
   return (
-    <div className="fixed inset-0 z-50 bg-black text-white flex flex-col justify-between p-6 sm:p-12 select-none overflow-hidden animate-fadeIn">
-      {/* Background ambient radial glow */}
-      <div 
-        className="absolute inset-0 pointer-events-none opacity-25"
-        style={{ backgroundImage: theme.meshBg }}
-      />
+    <div 
+      onClick={onClose}
+      className="fixed inset-0 z-50 bg-black text-white flex flex-col justify-between p-6 sm:p-10 select-none cursor-pointer overflow-hidden animate-fadeIn"
+      title="Click anywhere to wake screen"
+    >
+      {/* Top Low-Power OLED Status Bar */}
+      <div className="relative z-10 flex items-center justify-between text-neutral-500 text-xs font-mono">
+        <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+          <span className="tracking-widest uppercase text-[11px] text-neutral-400">
+            AOD STANDBY • 1Hz LOW-POWER OLED
+          </span>
+        </div>
 
-      {/* Top Header */}
-      <div className="relative z-10 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-          <span className="text-xs font-mono uppercase tracking-widest text-slate-400">
-            ALWAYS-ON STANDBY DISPLAY • {deadline.category}
-          </span>
+          <div className="flex items-center gap-1">
+            <Signal className="w-3.5 h-3.5" />
+            <Wifi className="w-3.5 h-3.5" />
+            <div className="h-4 px-1 rounded bg-neutral-800 border border-neutral-700 flex items-center justify-center text-[10px] font-bold text-neutral-300">
+              99%
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+            }}
+            className="p-1.5 rounded-full bg-neutral-900 hover:bg-neutral-800 text-neutral-400 hover:text-white transition"
+            title="Exit Always-On Display"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
-        <button
-          onClick={onClose}
-          className="p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition active:scale-95"
-          title="Exit Always-On Display (Esc)"
-        >
-          <X className="w-5 h-5" />
-        </button>
       </div>
 
-      {/* Center Giant Countdown & Active Target */}
-      <div className="relative z-10 flex flex-col items-center justify-center text-center my-auto">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 mb-4 backdrop-blur-md">
-          <Clock className="w-4 h-4 text-cyan-400" />
-          <span className="text-xs font-medium text-slate-300">
-            Current Time: {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+      {/* Main Center Clock & Minimalist T-Minus Anchor */}
+      <div className="relative z-10 flex flex-col items-center justify-center text-center my-auto max-w-xl mx-auto w-full">
+        {/* Large OLED Clock (OriginOS / HyperOS Clean Stack) */}
+        <div className="flex flex-col items-center leading-[0.80] tracking-tight text-neutral-100 font-sans select-none mb-3">
+          <span className="text-8xl sm:text-9xl font-extralight tracking-tighter opacity-95">
+            {currentHours}
+          </span>
+          <span className="text-8xl sm:text-9xl font-extralight tracking-tighter opacity-95 mt-1">
+            {currentMinutes}
           </span>
         </div>
 
-        <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight drop-shadow-2xl mb-2">
-          {deadline.title}
-        </h1>
-        <p className="text-sm sm:text-base text-slate-400 max-w-xl font-medium mb-8">
-          {deadline.tagline}
-        </p>
-
-        {/* Big Digits Grid */}
-        <div className="grid grid-cols-4 gap-3 sm:gap-6 max-w-2xl w-full mb-8">
-          <div className="bg-slate-900/60 border border-white/10 rounded-3xl p-4 sm:p-6 backdrop-blur-xl flex flex-col items-center">
-            <span className="text-4xl sm:text-7xl font-black font-mono tracking-tight text-white leading-none">
-              {String(timeRemaining.days).padStart(2, '0')}
-            </span>
-            <span className="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-widest mt-3">Days</span>
-          </div>
-          <div className="bg-slate-900/60 border border-white/10 rounded-3xl p-4 sm:p-6 backdrop-blur-xl flex flex-col items-center">
-            <span className="text-4xl sm:text-7xl font-black font-mono tracking-tight text-white leading-none">
-              {String(timeRemaining.hours).padStart(2, '0')}
-            </span>
-            <span className="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-widest mt-3">Hours</span>
-          </div>
-          <div className="bg-slate-900/60 border border-white/10 rounded-3xl p-4 sm:p-6 backdrop-blur-xl flex flex-col items-center">
-            <span className="text-4xl sm:text-7xl font-black font-mono tracking-tight text-white leading-none">
-              {String(timeRemaining.minutes).padStart(2, '0')}
-            </span>
-            <span className="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-widest mt-3">Minutes</span>
-          </div>
-          <div className="bg-slate-900/60 border border-white/10 rounded-3xl p-4 sm:p-6 backdrop-blur-xl flex flex-col items-center relative overflow-hidden">
-            <span className="text-4xl sm:text-7xl font-black font-mono tracking-tight text-amber-400 leading-none">
-              {String(timeRemaining.seconds).padStart(2, '0')}
-            </span>
-            <span className="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-widest mt-3">Seconds</span>
-            <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-          </div>
+        {/* Date and Live Pulsing Colon Seconds */}
+        <div className="flex items-center gap-2 text-sm text-neutral-400 font-normal mb-8">
+          <span>{aodDateFormatted}</span>
+          <span className="text-neutral-600">•</span>
+          <span className="font-mono text-xs text-neutral-400 font-light">
+            :{currentSeconds}
+          </span>
         </div>
 
-        {/* Current Active Milestone Highlight */}
-        {activeMilestone && (
-          <div className="max-w-lg w-full p-4 rounded-2xl bg-indigo-950/40 border border-indigo-500/40 backdrop-blur-xl flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-indigo-600/30 border border-indigo-500/50 flex items-center justify-center text-indigo-300">
-                <Flame className="w-5 h-5 text-amber-400 animate-pulse" />
-              </div>
-              <div className="text-left">
-                <span className="text-[10px] font-mono text-cyan-400 uppercase tracking-wider block font-bold">
-                  ACTIVE FOCUS CHECKPOINT
+        {/* Minimalist OLED Countdown Card */}
+        <div className="w-full max-w-md p-4 rounded-2xl bg-neutral-950/80 border border-neutral-800/80 backdrop-blur-xl">
+          <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-500 block mb-1">
+            T-MINUS COUNTDOWN: {deadline.title.toUpperCase()}
+          </span>
+
+          <div className="grid grid-cols-4 gap-2 my-2.5 text-center font-mono">
+            <div className="py-2 px-1 rounded-xl bg-neutral-900/60 border border-neutral-800/60">
+              <span className="text-2xl font-bold text-white block leading-none tabular-nums">
+                {String(timeRemaining.days).padStart(2, '0')}
+              </span>
+              <span className="text-[8px] text-neutral-400 uppercase tracking-widest mt-1 block">Days</span>
+            </div>
+            <div className="py-2 px-1 rounded-xl bg-neutral-900/60 border border-neutral-800/60">
+              <span className="text-2xl font-bold text-white block leading-none tabular-nums">
+                {String(timeRemaining.hours).padStart(2, '0')}
+              </span>
+              <span className="text-[8px] text-neutral-400 uppercase tracking-widest mt-1 block">Hours</span>
+            </div>
+            <div className="py-2 px-1 rounded-xl bg-neutral-900/60 border border-neutral-800/60">
+              <span className="text-2xl font-bold text-white block leading-none tabular-nums">
+                {String(timeRemaining.minutes).padStart(2, '0')}
+              </span>
+              <span className="text-[8px] text-neutral-400 uppercase tracking-widest mt-1 block">Mins</span>
+            </div>
+            <div className="py-2 px-1 rounded-xl bg-neutral-900/60 border border-neutral-800/60">
+              <span className="text-2xl font-bold text-amber-400 block leading-none tabular-nums">
+                {String(timeRemaining.seconds).padStart(2, '0')}
+              </span>
+              <span className="text-[8px] text-neutral-400 uppercase tracking-widest mt-1 block">Secs</span>
+            </div>
+          </div>
+
+          {/* Next Active Milestone Highlight */}
+          {nextMilestone && (
+            <div className="mt-3 pt-2.5 border-t border-neutral-850 flex items-center justify-between text-xs text-left">
+              <div className="flex items-center gap-2 min-w-0">
+                <CheckSquare className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
+                <span className="text-neutral-300 font-medium truncate">
+                  <strong className="text-amber-400 font-mono text-[11px] mr-1">
+                    {nextMilestone.tLabel || 'T-Next'}:
+                  </strong>
+                  {nextMilestone.title}
                 </span>
-                <h4 className="text-sm font-bold text-white">{activeMilestone.title}</h4>
-                <p className="text-xs text-slate-300">{activeMilestone.note}</p>
               </div>
+              <span className="font-mono text-[10px] text-neutral-500 flex-shrink-0 ml-2">
+                {nextMilestone.date}
+              </span>
             </div>
-            <div className="text-right">
-              <span className="text-xs font-mono font-bold text-slate-300 block">{activeMilestone.date}</span>
-              <span className="text-[10px] text-emerald-400 font-semibold">{progressPercent}% Overall</span>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
-      {/* Bottom Footer Quote */}
-      <div className="relative z-10 text-center text-xs text-slate-500 font-serif italic">
-        {deadline.dailyAnchor || '“The best way to predict the future is to create it.”'}
+      {/* Bottom Dismiss / Wake Hint */}
+      <div className="relative z-10 text-center text-[11px] text-neutral-600 font-mono tracking-wide">
+        Tap anywhere or press Esc to wake screen
       </div>
     </div>
   );

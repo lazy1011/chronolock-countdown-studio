@@ -9,7 +9,8 @@ import {
   Layers,
   Sun,
   Moon,
-  Sparkles
+  Sparkles,
+  Clock
 } from 'lucide-react';
 
 import LockScreenPreview from './components/LockScreenPreview';
@@ -35,9 +36,10 @@ export default function App() {
   });
 
   const [milestones, setMilestones] = useState(defaultPreset.milestones);
-  const [selectedBgId, setSelectedBgId] = useState('cosmic-nebula');
+  const [selectedBgId, setSelectedBgId] = useState('its-locked-cat');
   const [customPalette, setCustomPalette] = useState(null);
-  const [deviceProfileId, setDeviceProfileId] = useState('iphone16pro');
+  const [deviceProfileId, setDeviceProfileId] = useState('android');
+  const [clockStyle, setClockStyle] = useState('stacked'); // 'stacked' | 'classic'
   const [showOsOverlay, setShowOsOverlay] = useState(true);
   const [showSafeZones, setShowSafeZones] = useState(false);
   const [isLightMode, setIsLightMode] = useState(false);
@@ -173,11 +175,22 @@ export default function App() {
         {/* LEFT / CENTER: Phone Lock Screen Preview */}
         <div className="lg:col-span-7 flex flex-col items-center justify-center space-y-4">
           {/* Quick Mockup Options Bar (Pixel-Perfect Aligned Heights & Padding) */}
-          <div className="flex items-center justify-between w-full max-w-sm px-1 text-xs text-neutral-400">
+          <div className="flex flex-wrap items-center justify-between w-full max-w-md px-1 text-xs text-neutral-400 gap-2">
             {/* Device Switcher (Height: h-8) */}
             <div className={`h-8 flex items-center gap-1 p-0.5 rounded-xl border ${
               isLightMode ? 'bg-white border-neutral-300' : 'bg-neutral-900 border-neutral-800'
             }`}>
+              <button
+                type="button"
+                onClick={() => setDeviceProfileId('android')}
+                className={`h-7 px-2.5 rounded-lg text-xs font-medium transition ${
+                  deviceProfileId === 'android' 
+                    ? isLightMode ? 'bg-neutral-900 text-white' : 'bg-neutral-800 text-white' 
+                    : isLightMode ? 'text-neutral-600 hover:text-black' : 'text-neutral-400 hover:text-white'
+                }`}
+              >
+                Android
+              </button>
               <button
                 type="button"
                 onClick={() => setDeviceProfileId('iphone16pro')}
@@ -188,17 +201,6 @@ export default function App() {
                 }`}
               >
                 iPhone 16 Pro
-              </button>
-              <button
-                type="button"
-                onClick={() => setDeviceProfileId('pixel9pro')}
-                className={`h-7 px-2.5 rounded-lg text-xs font-medium transition ${
-                  deviceProfileId === 'pixel9pro' 
-                    ? isLightMode ? 'bg-neutral-900 text-white' : 'bg-neutral-800 text-white' 
-                    : isLightMode ? 'text-neutral-600 hover:text-black' : 'text-neutral-400 hover:text-white'
-                }`}
-              >
-                Pixel 9 Pro
               </button>
               <button
                 type="button"
@@ -215,6 +217,21 @@ export default function App() {
 
             {/* Hardware Controls (Height: h-8, perfectly matching side buttons) */}
             <div className="flex items-center gap-1.5">
+              {/* Clock Style Switcher */}
+              <button
+                type="button"
+                onClick={() => setClockStyle(clockStyle === 'stacked' ? 'classic' : 'stacked')}
+                className={`h-8 px-2.5 rounded-xl border text-xs font-medium flex items-center gap-1 transition ${
+                  clockStyle === 'stacked'
+                    ? isLightMode ? 'bg-neutral-900 text-white border-neutral-900' : 'bg-neutral-800 text-white border-neutral-700'
+                    : isLightMode ? 'bg-white text-neutral-600 border-neutral-300 hover:bg-neutral-100' : 'bg-neutral-900 text-neutral-400 border-neutral-800 hover:text-white'
+                }`}
+                title="Switch Clock Style: 2-Line Stacked vs 1-Line Classic"
+              >
+                <Clock className="w-3.5 h-3.5 text-amber-400" />
+                <span>{clockStyle === 'stacked' ? '2-Line' : '1-Line'}</span>
+              </button>
+
               <button
                 type="button"
                 onClick={() => setShowOsOverlay(!showOsOverlay)}
@@ -254,6 +271,7 @@ export default function App() {
               selectedBgId={selectedBgId}
               customPalette={customPalette}
               deviceProfileId={deviceProfileId}
+              clockStyle={clockStyle}
               showOsOverlay={showOsOverlay}
               showSafeZones={showSafeZones}
               timeRemaining={timeRemaining}
@@ -278,6 +296,8 @@ export default function App() {
             setCustomPalette={setCustomPalette}
             deviceProfileId={deviceProfileId}
             setDeviceProfileId={setDeviceProfileId}
+            clockStyle={clockStyle}
+            setClockStyle={setClockStyle}
             showOsOverlay={showOsOverlay}
             setShowOsOverlay={setShowOsOverlay}
             showSafeZones={showSafeZones}

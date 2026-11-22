@@ -32,6 +32,8 @@ export default function ControlsPanel({
   setCustomPalette,
   deviceProfileId,
   setDeviceProfileId,
+  clockStyle = 'stacked',
+  setClockStyle,
   showOsOverlay,
   setShowOsOverlay,
   showSafeZones,
@@ -339,6 +341,37 @@ export default function ControlsPanel({
                     <span className="text-[10px] text-neutral-500 block truncate">{d.name}</span>
                   </button>
                 ))}
+              </div>
+            </div>
+
+            {/* Clock Typography & Style */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-medium text-neutral-400 block">Lock Screen Clock Style</label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setClockStyle && setClockStyle('stacked')}
+                  className={`p-2.5 rounded-xl text-left border transition ${
+                    clockStyle === 'stacked'
+                      ? 'bg-neutral-800 text-white border-neutral-600'
+                      : 'bg-neutral-900/60 border-neutral-800 text-neutral-400 hover:text-neutral-200'
+                  }`}
+                >
+                  <div className="text-xs font-semibold">2-Line Stacked</div>
+                  <span className="text-[10px] text-neutral-500 block truncate">OriginOS / HyperOS Big Clock</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setClockStyle && setClockStyle('classic')}
+                  className={`p-2.5 rounded-xl text-left border transition ${
+                    clockStyle === 'classic'
+                      ? 'bg-neutral-800 text-white border-neutral-600'
+                      : 'bg-neutral-900/60 border-neutral-800 text-neutral-400 hover:text-neutral-200'
+                  }`}
+                >
+                  <div className="text-xs font-semibold">1-Line Classic</div>
+                  <span className="text-[10px] text-neutral-500 block truncate">iOS / Clean Minimalist</span>
+                </button>
               </div>
             </div>
 
