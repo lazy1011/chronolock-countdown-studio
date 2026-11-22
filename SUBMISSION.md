@@ -48,7 +48,7 @@ When high-stakes deadlines collide—such as academic finals, thesis defenses, h
 
 ### d. Project Link / URL
 ```text
-https://github.com/pratikmohanty/chronolock-ai-studio
+https://github.com/lazy1011/chronolock-countdown-studio
 ```
 *(Live demo can be run locally via `npm run dev` or deployed in 1-click to Vercel / GitHub Pages)*
 
