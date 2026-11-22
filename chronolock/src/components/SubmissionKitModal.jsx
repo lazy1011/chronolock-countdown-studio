@@ -207,7 +207,7 @@ T-Minus Countdown turns every phone unlock into glanceable accountability. Worki
               <span className="text-xs font-semibold text-neutral-300">4. Project Link / URL (Required)</span>
               <button
                 type="button"
-                onClick={() => copyToClipboard('https://github.com/pratikmohanty/chronolock-ai-studio', 'url')}
+                onClick={() => copyToClipboard('https://github.com/lazy1011/chronolock-countdown-studio', 'url')}
                 className="h-7 px-2.5 rounded-lg border border-neutral-700 bg-neutral-800 hover:bg-neutral-700 text-xs font-medium text-neutral-200 flex items-center gap-1 transition"
               >
                 {copiedField === 'url' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
@@ -215,7 +215,7 @@ T-Minus Countdown turns every phone unlock into glanceable accountability. Worki
               </button>
             </div>
             <p className="text-xs font-mono text-neutral-300 bg-black/50 p-2.5 rounded-xl border border-neutral-800">
-              https://github.com/pratikmohanty/chronolock-ai-studio
+              https://github.com/lazy1011/chronolock-countdown-studio
             </p>
           </div>
         </div>
