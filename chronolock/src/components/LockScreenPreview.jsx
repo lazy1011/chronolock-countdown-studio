@@ -1,14 +1,12 @@
 import React, { forwardRef } from 'react';
 import { 
-  CheckCircle2, 
-  Circle, 
+  CheckSquare, 
+  Square, 
   Flashlight, 
   Camera, 
   Wifi, 
   Battery, 
-  Signal, 
-  ArrowUpRight,
-  ShieldCheck
+  Signal
 } from 'lucide-react';
 import { PRESET_THEMES, DEVICE_PROFILES } from '../constants/presets';
 
@@ -16,28 +14,38 @@ const LockScreenPreview = forwardRef(({
   deadline,
   milestones,
   themeId,
+  customPalette,
   deviceProfileId,
   showOsOverlay,
   showSafeZones,
   timeRemaining
 }, ref) => {
-  const theme = PRESET_THEMES[themeId] || PRESET_THEMES.titanium;
+  const baseTheme = PRESET_THEMES[themeId] || PRESET_THEMES.titanium;
   const isDesktop = deviceProfileId === 'desktop4k';
+
+  // Apply custom palette if extracted from image
+  const theme = customPalette ? {
+    ...baseTheme,
+    accent: customPalette.accent || baseTheme.accent,
+    bg: customPalette.bg || baseTheme.bg,
+    wallpaperBg: customPalette.bg || baseTheme.wallpaperBg,
+    textPrimary: customPalette.text || baseTheme.textPrimary
+  } : baseTheme;
 
   const completedCount = milestones.filter(m => m.done).length;
   const progressPercent = milestones.length > 0 ? Math.round((completedCount / milestones.length) * 100) : 0;
-  
-  // Active milestone is the first non-completed item
-  const activeMilestoneIndex = milestones.findIndex(m => !m.done);
 
-  // Formatted date and time for lockscreen OS overlay
+  // Format real current time for simulated OS overlay
   const now = new Date();
   const osTimeFormatted = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: false });
   const osDateFormatted = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
+  // Official prompt title format
+  const displayTitle = `T-MINUS COUNTDOWN: ${deadline.title.toUpperCase()}`;
+
   return (
     <div className="relative flex justify-center items-center w-full select-none">
-      {/* Physical Device Chassis */}
+      {/* Physical Device Frame */}
       <div 
         className={`relative transition-all duration-300 shadow-[0_30px_100px_-20px_rgba(0,0,0,0.95)] p-3 bg-[#18181b] rounded-[52px] border border-neutral-700/80 ${
           isDesktop 
@@ -57,36 +65,36 @@ const LockScreenPreview = forwardRef(({
             color: theme.textPrimary
           }}
         >
-          {/* Subtle Ambient Vignette */}
+          {/* Subtle Ambient Texture */}
           <div 
-            className="absolute inset-0 pointer-events-none opacity-40" 
+            className="absolute inset-0 pointer-events-none opacity-30" 
             style={{ backgroundImage: theme.overlayMesh }}
           />
 
-          {/* Safe Zone Visualizer (When User Toggles It On) */}
+          {/* Safe Zone Visualizer */}
           {showSafeZones && (
             <div className="absolute inset-0 z-50 pointer-events-none flex flex-col justify-between border border-dashed border-rose-500/50">
-              <div className="h-32 bg-rose-500/10 border-b border-dashed border-rose-500/30 flex items-center justify-center">
+              <div className="h-36 bg-rose-500/10 border-b border-dashed border-rose-500/30 flex items-center justify-center">
                 <span className="text-[10px] font-mono text-rose-300 bg-black/80 px-2 py-0.5 rounded border border-rose-500/40">
-                  Reserved Safe Zone: System Clock & Dynamic Island
+                  Clean Space: Reserved for System Clock & Widgets
                 </span>
               </div>
               <div className="flex-1 flex items-center justify-center bg-emerald-500/5">
                 <span className="text-[10px] font-mono text-emerald-300 bg-black/80 px-2 py-0.5 rounded border border-emerald-500/40">
-                  Primary Canvas: Countdown & Milestones
+                  T-Minus Flightdeck & Checkpoints
                 </span>
               </div>
               <div className="h-20 bg-rose-500/10 border-t border-dashed border-rose-500/30 flex items-center justify-center">
                 <span className="text-[10px] font-mono text-rose-300 bg-black/80 px-2 py-0.5 rounded border border-rose-500/40">
-                  Reserved Safe Zone: Hardware Shortcuts & Home Bar
+                  Hardware Shortcuts & Home Swipe Bar
                 </span>
               </div>
             </div>
           )}
 
-          {/* TOP SECTION: Hardware Notch & iOS Clock */}
-          <div className="relative z-20 pt-2 px-6 flex flex-col items-center">
-            {/* Status Bar */}
+          {/* TOP 35%: CLEAN SPACE FOR CLOCK & ICONS */}
+          <div className="relative z-20 pt-2 px-6 flex flex-col items-center min-h-[140px]">
+            {/* Native Status Bar */}
             {!isDesktop && (
               <div className="w-full flex justify-between items-center pt-1.5 px-2 text-white text-xs font-semibold tracking-tight">
                 <span>{osTimeFormatted}</span>
@@ -95,7 +103,7 @@ const LockScreenPreview = forwardRef(({
                     <div className="h-2.5 w-2.5 rounded-full bg-neutral-900 flex items-center justify-center">
                       <div className="h-1 w-1 rounded-full bg-blue-950" />
                     </div>
-                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: theme.accent }} />
                   </div>
                 ) : (
                   <div className="h-3 w-3 rounded-full bg-black border border-neutral-700" />
@@ -108,7 +116,7 @@ const LockScreenPreview = forwardRef(({
               </div>
             )}
 
-            {/* Desktop Top Menu Bar */}
+            {/* Desktop Top Bar */}
             {isDesktop && (
               <div className="w-full flex justify-between items-center py-1.5 px-4 text-neutral-400 text-xs border-b border-white/5 bg-black/40">
                 <div className="flex items-center gap-2">
@@ -122,7 +130,7 @@ const LockScreenPreview = forwardRef(({
               </div>
             )}
 
-            {/* Simulated Native iOS 18 Clock */}
+            {/* Simulated Native Clock (When enabled) */}
             {showOsOverlay && !isDesktop && (
               <div className="mt-4 text-center">
                 <p className="text-xs font-medium text-neutral-300 tracking-wide">
@@ -135,40 +143,40 @@ const LockScreenPreview = forwardRef(({
             )}
           </div>
 
-          {/* MIDDLE SECTION: COUNTDOWN & BACKWARD MILESTONES */}
+          {/* MIDDLE SECTION: T-MINUS TITLE, DIGITS & CHECKBOX MILESTONES */}
           <div className="relative z-20 flex-1 flex flex-col justify-center px-5 py-2">
-            {/* Project Title & Category */}
+            {/* Official T-Minus Title Header */}
             <div className="text-center mb-3">
-              <span className="text-[10px] font-mono tracking-wider uppercase text-neutral-400 block mb-0.5">
-                {deadline.category || 'Target Deadline'}
+              <span className="text-[10px] font-mono tracking-widest uppercase block mb-1 text-neutral-400">
+                DEADLINE COUNTDOWN
               </span>
-              <h2 className="text-base font-bold text-white tracking-tight leading-tight">
-                {deadline.title}
+              <h2 className="text-sm font-bold tracking-tight text-white leading-tight uppercase font-mono">
+                {displayTitle}
               </h2>
             </div>
 
-            {/* Countdown Grid (Tabular Precision) */}
-            <div className="mb-4 p-3 rounded-2xl bg-neutral-900/60 border border-white/5">
+            {/* Precision Digits Card */}
+            <div className="mb-4 p-3 rounded-2xl bg-neutral-900/70 border border-white/5">
               <div className="grid grid-cols-4 gap-1.5 text-center">
-                <div className="py-2 px-1 rounded-xl bg-black/40 border border-white/5">
+                <div className="py-2 px-1 rounded-xl bg-black/50 border border-white/5">
                   <span className="text-2xl font-bold font-mono tracking-tight text-white block leading-none tabular-nums">
                     {String(timeRemaining.days).padStart(2, '0')}
                   </span>
                   <span className="text-[9px] font-semibold text-neutral-400 uppercase tracking-wider mt-1 block">Days</span>
                 </div>
-                <div className="py-2 px-1 rounded-xl bg-black/40 border border-white/5">
+                <div className="py-2 px-1 rounded-xl bg-black/50 border border-white/5">
                   <span className="text-2xl font-bold font-mono tracking-tight text-white block leading-none tabular-nums">
                     {String(timeRemaining.hours).padStart(2, '0')}
                   </span>
                   <span className="text-[9px] font-semibold text-neutral-400 uppercase tracking-wider mt-1 block">Hours</span>
                 </div>
-                <div className="py-2 px-1 rounded-xl bg-black/40 border border-white/5">
+                <div className="py-2 px-1 rounded-xl bg-black/50 border border-white/5">
                   <span className="text-2xl font-bold font-mono tracking-tight text-white block leading-none tabular-nums">
                     {String(timeRemaining.minutes).padStart(2, '0')}
                   </span>
                   <span className="text-[9px] font-semibold text-neutral-400 uppercase tracking-wider mt-1 block">Mins</span>
                 </div>
-                <div className="py-2 px-1 rounded-xl bg-black/40 border border-white/5 relative">
+                <div className="py-2 px-1 rounded-xl bg-black/50 border border-white/5">
                   <span 
                     className="text-2xl font-bold font-mono tracking-tight block leading-none tabular-nums"
                     style={{ color: theme.accent }}
@@ -179,12 +187,9 @@ const LockScreenPreview = forwardRef(({
                 </div>
               </div>
 
-              {/* Minimal Roadmap Progress */}
+              {/* Progress Bar */}
               <div className="mt-2.5 pt-2 border-t border-white/5 flex items-center justify-between text-[10px] text-neutral-400">
-                <div className="flex items-center gap-1.5">
-                  <ShieldCheck className="w-3.5 h-3.5 text-neutral-300" />
-                  <span>Roadmap: <strong className="text-white">{completedCount}/{milestones.length} Completed</strong></span>
-                </div>
+                <span>Checkpoints: <strong className="text-white">{completedCount}/{milestones.length} Completed</strong></span>
                 <span className="font-mono text-neutral-200">{progressPercent}%</span>
               </div>
               <div className="w-full bg-neutral-800 h-1 rounded-full mt-1.5 overflow-hidden">
@@ -195,73 +200,42 @@ const LockScreenPreview = forwardRef(({
               </div>
             </div>
 
-            {/* Backward Milestones Timeline */}
-            <div className="space-y-1 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[1px] before:bg-neutral-800">
-              {milestones.slice(0, 4).map((m, idx) => {
-                const isCurrentActive = !m.done && idx === activeMilestoneIndex;
-
-                return (
+            {/* The Biggest Milestones with Checkboxes (Under 5 words each) */}
+            <div className="space-y-1.5">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400 block px-1">
+                KEY CHECKPOINTS
+              </span>
+              <div className="space-y-1 bg-black/40 p-2 rounded-2xl border border-white/5">
+                {milestones.slice(0, 5).map((m, idx) => (
                   <div 
                     key={m.id || idx}
-                    className={`relative flex items-start gap-2.5 p-2 rounded-xl transition ${
-                      isCurrentActive 
-                        ? 'bg-white/5 border border-white/10' 
-                        : 'border border-transparent'
+                    className={`flex items-center justify-between p-1.5 rounded-xl transition ${
+                      m.done ? 'text-neutral-500' : 'text-neutral-200'
                     }`}
                   >
-                    {/* Status Beacon */}
-                    <div className="relative z-10 flex-shrink-0 mt-0.5">
+                    <div className="flex items-center gap-2 min-w-0">
                       {m.done ? (
-                        <div className="w-4 h-4 rounded-full bg-neutral-800 border border-neutral-600 flex items-center justify-center text-white">
-                          <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                        </div>
-                      ) : isCurrentActive ? (
-                        <div 
-                          className="w-4 h-4 rounded-full border-2 flex items-center justify-center bg-black"
-                          style={{ borderColor: theme.accent }}
-                        >
-                          <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: theme.accent }} />
-                        </div>
+                        <CheckSquare className="w-4 h-4 text-emerald-400 flex-shrink-0" />
                       ) : (
-                        <div className="w-4 h-4 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center">
-                          <Circle className="w-1.5 h-1.5 text-neutral-700" />
-                        </div>
+                        <Square className="w-4 h-4 text-neutral-500 flex-shrink-0" />
                       )}
+                      <span className={`text-xs font-medium truncate ${m.done ? 'line-through text-neutral-500' : 'text-neutral-100 font-semibold'}`}>
+                        <strong className="font-mono text-[11px] mr-1" style={{ color: m.done ? undefined : theme.accent }}>
+                          {m.tLabel || `T-${Math.max(0, 14 - idx * 4)}`}:
+                        </strong>
+                        {m.title}
+                      </span>
                     </div>
-
-                    {/* Milestone Details */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <span className={`text-xs font-medium truncate ${isCurrentActive ? 'text-white font-semibold' : m.done ? 'text-neutral-500 line-through' : 'text-neutral-400'}`}>
-                          {m.title}
-                        </span>
-                        <span className="text-[10px] font-mono text-neutral-500 ml-1 flex-shrink-0">
-                          {m.date}
-                        </span>
-                      </div>
-                      {isCurrentActive && m.note && (
-                        <p className="text-[10px] text-neutral-300 mt-0.5 truncate flex items-center gap-1">
-                          <ArrowUpRight className="w-2.5 h-2.5 text-neutral-400" />
-                          <span>{m.note}</span>
-                        </p>
-                      )}
-                    </div>
+                    <span className="text-[10px] font-mono text-neutral-500 ml-2 flex-shrink-0">
+                      {m.date}
+                    </span>
                   </div>
-                );
-              })}
-            </div>
-
-            {/* Daily Motivational Focus Anchor */}
-            {deadline.dailyAnchor && (
-              <div className="mt-3 text-center">
-                <p className="text-[11px] text-neutral-400 font-serif italic">
-                  "{deadline.dailyAnchor}"
-                </p>
+                ))}
               </div>
-            )}
+            </div>
           </div>
 
-          {/* BOTTOM SECTION: Hardware Flashlight, Camera & Home Swipe Bar */}
+          {/* BOTTOM SECTION: Hardware Flashlight, Camera & Home Indicator */}
           {!isDesktop && (
             <div className="relative z-20 pb-4 pt-1 px-8 flex flex-col items-center">
               <div className="w-full flex justify-between items-center text-white/90">
@@ -274,7 +248,7 @@ const LockScreenPreview = forwardRef(({
                 </button>
 
                 <span className="text-[9px] font-mono tracking-widest uppercase text-neutral-500">
-                  Lock Screen
+                  Countdown Lock Screen
                 </span>
 
                 <button 

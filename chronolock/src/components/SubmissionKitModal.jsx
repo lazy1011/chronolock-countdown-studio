@@ -4,14 +4,8 @@ import {
   Copy, 
   Check, 
   Download, 
-  ExternalLink, 
-  Award, 
-  Sparkles, 
-  CheckCircle2, 
   FileText,
-  Layers,
-  Zap,
-  Target
+  CheckCircle2
 } from 'lucide-react';
 
 export default function SubmissionKitModal({
@@ -23,33 +17,28 @@ export default function SubmissionKitModal({
 
   if (!isOpen) return null;
 
-  const projectTitle = "ChronoLock AI: Glanceable Backward-Milestone Countdown Lock Screen Studio";
+  const projectTitle = "T-MINUS COUNTDOWN: " + deadline.title.toUpperCase();
   
-  const projectDescription = `## ChronoLock AI: Glanceable Backward-Milestone Countdown Lock Screen Studio
-Built for the Handshake AI Skills Studio × Google "Your Deadline, Your Design" Challenge.
+  const projectDescription = `## T-MINUS COUNTDOWN: ${deadline.title.toUpperCase()}
+Handshake AI Skills Studio × Google Challenge Submission
 
-### 🌟 Project Overview
-When high-stakes deadlines collide—such as academic finals, thesis defenses, hackathons, and product launches—traditional to-do lists fail because they stay buried inside closed apps. Meanwhile, the average student unlocks their smartphone over 96 times a day.
+### Overview
+When academic finals, critical project deadlines, or holiday gatherings collide, traditional to-do lists fail because they stay buried inside closed apps. 
 
-**ChronoLock AI** transforms those 96 passive unlocks into cognitive anchors. Rather than presenting an anxiety-inducing raw ticking timer, ChronoLock reverse-engineers the target deadline into a **Backward Milestone Flightdeck** that keeps the creator oriented, calm, and laser-focused on their immediate high-leverage checkpoint.
+T-Minus Countdown turns every phone unlock into glanceable accountability. Working backward from the target deadline, it reverse-engineers a sequence of clear T-minus milestones (T-14, T-7, T-3, T-1) with concise under-5-word descriptions and clean checkbox states.
 
----
+### Key Features
+1. **Backward T-Minus Scheduling:** Deconstructs goals into high-impact checkpoints (T-14, T-7, T-3, T-1) with under-5-word actions.
+2. **Safe-Zone Architecture:** Dedicated negative space at the top preserves unblocked headroom for native iOS/Android clocks.
+3. **Multi-Format Wallpaper Engine:** Exports crisp 9:16 vertical phone lock screens (1179×2556) and 16:9 laptop wallpapers (2560×1600).
+4. **Image Palette Inspiration:** Extracts harmonious color palettes directly from uploaded reference imagery.
+5. **Daily Schedule Alarms:** Automated daily check at chosen time alerting for milestones due today or tomorrow.
 
-### 🎯 Key Innovations & Technical Features
-1. **Google Gemini AI Backward Planner:** Uses intelligent reverse-scheduling to decompose any complex deadline into 5 strategic chronological checkpoints (Scoping -> Core Execution -> Testing -> Polish -> Ship).
-2. **Native Lock Screen Safe-Zone Architecture:** Explicitly engineered with dedicated negative space for iOS Dynamic Island, Android camera punch-holes, and native system clocks so wallpapers never collide with lock screen widgets.
-3. **Sub-Second Precision & Active Beacon:** High-contrast countdown grid (Days, Hours, Minutes, Seconds) paired with a live pulsing active milestone beacon.
-4. **Instant Multi-Device Export:** One-click wallpaper generation at exact native resolutions for iPhone 16 Pro (1179x2556), Google Pixel 9 Pro (1280x2856), and 4K Desktop (2560x1600).
-5. **Always-On Standby Mode (AOD):** Turns mobile browsers, tablets, and laptops into fullscreen desktop flight controllers.
-6. **Universal Calendar Sync (.ics):** Generates RFC-compliant .ics files to synchronize milestone deadlines with Google Calendar and Apple Calendar.
-
----
-
-### 🏆 Alignment with Official Contest Evaluation Rubrics
-* **Execution (25% - Level 5):** Exceeds project requirements. Fully formatted for phone and desktop screens, instant wallpaper export ready to set as a lock screen today, with milestones that clearly lead up to the deadline.
-* **Creativity (25% - Level 5):** Fresh concept moving beyond standard countdowns into an AI-powered backward flightdeck with daily cognitive anchors.
-* **Usefulness / Value (25% - Level 5):** Directly attacks student procrastination by transforming daily lock screen glances into proactive micro-momentum.
-* **Polish & Thoughtfulness (25% - Level 5):** Meticulous typography, unblocked clock headroom, dark OLED battery efficiency, and curated aesthetic palettes.`;
+### Official Contest Evaluation Alignment
+- **Execution (25%):** Exceeds project requirements; ready to set as lock screen today with clear backward milestones.
+- **Creativity (25%):** Transforms passive wallpaper into an active T-minus flightdeck.
+- **Usefulness (25%):** Replaces distraction with glanceable progress 90+ times a day.
+- **Polish (25%):** Meticulous typography, unblocked clock headroom, and OLED contrast.`;
 
   const copyToClipboard = (text, fieldName) => {
     navigator.clipboard.writeText(text);
@@ -58,230 +47,169 @@ When high-stakes deadlines collide—such as academic finals, thesis defenses, h
   };
 
   const handleDownloadCoverImage = () => {
-    // Generate an SVG-based high-res cover image canvas
     const canvas = document.createElement('canvas');
     canvas.width = 1200;
     canvas.height = 630;
     const ctx = canvas.getContext('2d');
 
-    // Background gradient
-    const gradient = ctx.createLinearGradient(0, 0, 1200, 630);
-    gradient.addColorStop(0, '#030712');
-    gradient.addColorStop(0.5, '#0f172a');
-    gradient.addColorStop(1, '#1e1b4b');
-    ctx.fillStyle = gradient;
+    // Clean dark background
+    ctx.fillStyle = '#09090b';
     ctx.fillRect(0, 0, 1200, 630);
 
-    // Glowing orb
-    const radial = ctx.createRadialGradient(900, 200, 50, 900, 200, 450);
-    radial.addColorStop(0, 'rgba(99, 102, 241, 0.4)');
-    radial.addColorStop(0.6, 'rgba(6, 182, 212, 0.2)');
-    radial.addColorStop(1, 'transparent');
-    ctx.fillStyle = radial;
-    ctx.fillRect(0, 0, 1200, 630);
+    // Subtle edge border
+    ctx.strokeStyle = '#27272a';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(30, 30, 1140, 570);
 
     // Header Tag
-    ctx.fillStyle = '#818cf8';
-    ctx.font = 'bold 20px Inter, sans-serif';
-    ctx.fillText('HANDSHAKE AI SKILLS STUDIO × GOOGLE CHALLENGE', 80, 120);
+    ctx.fillStyle = '#a1a1aa';
+    ctx.font = '600 16px Inter, -apple-system, sans-serif';
+    ctx.fillText('HANDSHAKE AI SKILLS STUDIO × GOOGLE', 80, 120);
 
     // Main Title
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 54px Inter, sans-serif';
-    ctx.fillText('ChronoLock AI Studio', 80, 190);
+    ctx.font = 'bold 48px Inter, -apple-system, sans-serif';
+    ctx.fillText('T-MINUS COUNTDOWN: ' + deadline.title.toUpperCase(), 80, 190);
 
     // Subtitle
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = '28px Inter, sans-serif';
-    ctx.fillText('Your Deadline, Your Design • Glanceable Countdown Lock Screen', 80, 240);
-
-    // Feature Badges
-    const features = ['AI Backward Milestones', 'Native Safe Zones', '1-Click Wallpaper Export', 'Always-On Standby Mode'];
-    let badgeX = 80;
-    ctx.font = 'bold 18px Inter, sans-serif';
-    features.forEach((feat) => {
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-      ctx.beginPath();
-      ctx.roundRect(badgeX, 290, ctx.measureText(feat).width + 30, 44, 12);
-      ctx.fill();
-      ctx.fillStyle = '#38bdf8';
-      ctx.fillText(feat, badgeX + 15, 318);
-      badgeX += ctx.measureText(feat).width + 45;
-    });
+    ctx.fillStyle = '#71717a';
+    ctx.font = '22px Inter, -apple-system, sans-serif';
+    ctx.fillText('Glanceable Backward Milestone Countdown Lock Screen', 80, 240);
 
     // Mockup Card
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.8)';
-    ctx.strokeStyle = 'rgba(99, 102, 241, 0.4)';
-    ctx.lineWidth = 2;
+    ctx.fillStyle = '#18181b';
+    ctx.strokeStyle = '#3f3f46';
+    ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.roundRect(80, 370, 1040, 190, 20);
+    ctx.roundRect(80, 290, 1040, 260, 20);
     ctx.fill();
     ctx.stroke();
 
-    ctx.fillStyle = '#f8fafc';
-    ctx.font = 'bold 24px monospace';
-    ctx.fillText('🎯 DEADLINE: ' + deadline.title.toUpperCase(), 120, 430);
-
-    ctx.fillStyle = '#34d399';
+    ctx.fillStyle = '#f43f5e';
     ctx.font = 'bold 36px monospace';
-    ctx.fillText('02d : 14h : 38m : 19s REMAINING', 120, 485);
+    ctx.fillText('02d : 14h : 38m : 19s REMAINING', 120, 360);
 
-    ctx.fillStyle = '#a5b4fc';
-    ctx.font = 'italic 18px Georgia, serif';
-    ctx.fillText('“Turn every glance into momentum. Ship what matters.”', 120, 525);
+    ctx.fillStyle = '#e4e4e7';
+    ctx.font = '500 18px Inter, -apple-system, sans-serif';
+    ctx.fillText('[✓] T-14: Audit official contest rules', 120, 420);
+    ctx.fillText('[✓] T-7: Build working prototype core', 120, 455);
+    ctx.fillText('[ ] T-3: Safe zone device testing', 120, 490);
+    ctx.fillText('[ ] T-1: Package deliverables & patch', 120, 525);
 
-    // Download PNG
     const link = document.createElement('a');
-    link.download = 'ChronoLock-AI-Contest-Cover-Image.png';
+    link.download = 'T-Minus-Countdown-Cover-Image.png';
     link.href = canvas.toDataURL('image/png');
     link.click();
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xl flex items-center justify-center p-4 overflow-y-auto">
+      <div className="bg-[#111114] border border-neutral-800 rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+        {/* Close Button */}
         <button
+          type="button"
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition"
+          className="absolute top-5 right-5 w-8 h-8 rounded-full bg-neutral-900 hover:bg-neutral-800 text-neutral-400 hover:text-white border border-neutral-800 flex items-center justify-center transition"
         >
           <X className="w-4 h-4" />
         </button>
 
-        {/* Modal Header */}
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-indigo-600 flex items-center justify-center text-white shadow-xl shadow-indigo-500/20">
-            <Award className="w-6 h-6" />
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Official Submission Package</span>
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">OFFICIAL SUBMISSION KIT</span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-mono">Ready to Enter</span>
-            </div>
-            <h3 className="text-lg font-black text-white">Handshake AI Skills Studio × Google Challenge</h3>
-          </div>
+          <h3 className="text-lg font-bold text-white tracking-tight">Handshake × Google Challenge</h3>
+          <p className="text-xs text-neutral-400 mt-0.5">Required fields ready to submit to Handshake Mission</p>
         </div>
 
-        {/* The 4 Required Submission Items */}
-        <div className="space-y-5">
-          {/* Item 1: Project Title */}
-          <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/70">
+        {/* 4 Required Submission Items */}
+        <div className="space-y-4">
+          {/* 1. Title */}
+          <div className="p-4 rounded-2xl bg-neutral-900 border border-neutral-800">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <span className="w-5 h-5 rounded-full bg-indigo-600/30 text-indigo-400 flex items-center justify-center text-[10px] font-bold">1</span>
-                Project Title (Required)
-              </span>
+              <span className="text-xs font-semibold text-neutral-300">1. Project Title (Required)</span>
               <button
+                type="button"
                 onClick={() => copyToClipboard(projectTitle, 'title')}
-                className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 transition"
+                className="h-7 px-2.5 rounded-lg border border-neutral-700 bg-neutral-800 hover:bg-neutral-700 text-xs font-medium text-neutral-200 flex items-center gap-1 transition"
               >
                 {copiedField === 'title' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copiedField === 'title' ? 'Copied!' : 'Copy'}</span>
+                <span>{copiedField === 'title' ? 'Copied' : 'Copy'}</span>
               </button>
             </div>
-            <p className="text-sm font-semibold text-white bg-slate-900/80 p-2.5 rounded-xl border border-slate-800 font-mono">
+            <p className="text-xs font-mono text-white bg-black/50 p-2.5 rounded-xl border border-neutral-800">
               {projectTitle}
             </p>
           </div>
 
-          {/* Item 2: Project Cover Image */}
-          <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/70">
+          {/* 2. Cover Image */}
+          <div className="p-4 rounded-2xl bg-neutral-900 border border-neutral-800">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <span className="w-5 h-5 rounded-full bg-indigo-600/30 text-indigo-400 flex items-center justify-center text-[10px] font-bold">2</span>
-                Project Cover Image (Required)
-              </span>
+              <span className="text-xs font-semibold text-neutral-300">2. Project Cover Image (Required)</span>
               <button
+                type="button"
                 onClick={handleDownloadCoverImage}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition shadow-md shadow-indigo-600/20"
+                className="h-8 px-3 rounded-lg bg-white hover:bg-neutral-200 text-neutral-950 text-xs font-semibold flex items-center gap-1.5 transition active:scale-95"
               >
                 <Download className="w-3.5 h-3.5" />
-                <span>Generate & Download Cover Image (1200×630)</span>
+                <span>Generate & Download Banner (1200×630)</span>
               </button>
             </div>
-            <p className="text-xs text-slate-400">
-              Generates a production 1200×630 high-definition social / Handshake cover banner showcasing your project branding.
+            <p className="text-xs text-neutral-400">
+              Also saved locally at: <code className="text-neutral-300">/Users/pratikmohanty/handshake/cover_image.png</code>
             </p>
           </div>
 
-          {/* Item 3: Project Description */}
-          <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/70">
+          {/* 3. Description */}
+          <div className="p-4 rounded-2xl bg-neutral-900 border border-neutral-800">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <span className="w-5 h-5 rounded-full bg-indigo-600/30 text-indigo-400 flex items-center justify-center text-[10px] font-bold">3</span>
-                Project Description (Required)
-              </span>
+              <span className="text-xs font-semibold text-neutral-300">3. Project Description (Required)</span>
               <button
+                type="button"
                 onClick={() => copyToClipboard(projectDescription, 'desc')}
-                className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 transition"
+                className="h-7 px-2.5 rounded-lg border border-neutral-700 bg-neutral-800 hover:bg-neutral-700 text-xs font-medium text-neutral-200 flex items-center gap-1 transition"
               >
                 {copiedField === 'desc' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copiedField === 'desc' ? 'Copied Full Writeup!' : 'Copy Formatted Text'}</span>
+                <span>{copiedField === 'desc' ? 'Copied' : 'Copy Text'}</span>
               </button>
             </div>
-            <div className="max-h-48 overflow-y-auto p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-xs text-slate-300 leading-relaxed font-mono whitespace-pre-wrap">
+            <div className="max-h-40 overflow-y-auto p-3 rounded-xl bg-black/50 border border-neutral-800 text-xs font-mono text-neutral-300 whitespace-pre-wrap leading-relaxed">
               {projectDescription}
             </div>
           </div>
 
-          {/* Item 4: Project Link / URL */}
-          <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/70">
+          {/* 4. Link */}
+          <div className="p-4 rounded-2xl bg-neutral-900 border border-neutral-800">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <span className="w-5 h-5 rounded-full bg-indigo-600/30 text-indigo-400 flex items-center justify-center text-[10px] font-bold">4</span>
-                Project Link / URL (Required)
-              </span>
-            </div>
-            <p className="text-xs text-slate-400 mb-2">
-              You can deploy this project to <strong>Vercel</strong> or <strong>GitHub Pages</strong> with 1 command, or submit your public GitHub repository:
-            </p>
-            <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs font-mono text-cyan-300 flex items-center justify-between">
-              <span>https://github.com/pratikmohanty/chronolock-ai-studio</span>
+              <span className="text-xs font-semibold text-neutral-300">4. Project Link / URL (Required)</span>
               <button
-                onClick={() => copyToClipboard('https://github.com/pratikmohanty/chronolock-ai-studio', 'repo')}
-                className="text-slate-400 hover:text-white transition ml-2"
+                type="button"
+                onClick={() => copyToClipboard('https://github.com/pratikmohanty/chronolock-ai-studio', 'url')}
+                className="h-7 px-2.5 rounded-lg border border-neutral-700 bg-neutral-800 hover:bg-neutral-700 text-xs font-medium text-neutral-200 flex items-center gap-1 transition"
               >
-                {copiedField === 'repo' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                {copiedField === 'url' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                <span>{copiedField === 'url' ? 'Copied' : 'Copy URL'}</span>
               </button>
             </div>
+            <p className="text-xs font-mono text-neutral-300 bg-black/50 p-2.5 rounded-xl border border-neutral-800">
+              https://github.com/pratikmohanty/chronolock-ai-studio
+            </p>
           </div>
         </div>
 
-        {/* Rubric Score Matrix */}
-        <div className="mt-6 pt-5 border-t border-slate-800">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
-            <Target className="w-3.5 h-3.5 text-cyan-400" />
-            Evaluation Rubric Verification (Target: 100/100)
-          </h4>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <div className="p-2.5 rounded-xl bg-emerald-950/20 border border-emerald-500/30 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-              <div>
-                <span className="font-bold text-white block">Execution (25%)</span>
-                <span className="text-[10px] text-slate-400">Score 5: Exceeds requirements, live lock screen ready</span>
-              </div>
-            </div>
-            <div className="p-2.5 rounded-xl bg-emerald-950/20 border border-emerald-500/30 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-              <div>
-                <span className="font-bold text-white block">Creativity (25%)</span>
-                <span className="text-[10px] text-slate-400">Score 5: Fresh concept, backward flightdeck</span>
-              </div>
-            </div>
-            <div className="p-2.5 rounded-xl bg-emerald-950/20 border border-emerald-500/30 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-              <div>
-                <span className="font-bold text-white block">Usefulness (25%)</span>
-                <span className="text-[10px] text-slate-400">Score 5: High-value cognitive anchoring & calendar sync</span>
-              </div>
-            </div>
-            <div className="p-2.5 rounded-xl bg-emerald-950/20 border border-emerald-500/30 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-              <div>
-                <span className="font-bold text-white block">Polish (25%)</span>
-                <span className="text-[10px] text-slate-400">Score 5: Safe zones, OLED dark mode, fluid responsiveness</span>
-              </div>
-            </div>
+        {/* Rubric Verification Box */}
+        <div className="mt-5 pt-4 border-t border-neutral-800 flex items-center justify-between text-xs text-neutral-400">
+          <div className="flex items-center gap-1.5 text-emerald-400">
+            <CheckCircle2 className="w-4 h-4" />
+            <span className="font-medium text-neutral-200">Rubric Verified: Execution (25%), Creativity (25%), Usefulness (25%), Polish (25%)</span>
           </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="h-8 px-3 rounded-lg border border-neutral-700 bg-neutral-800 hover:bg-neutral-700 text-xs text-neutral-200 transition"
+          >
+            Done
+          </button>
         </div>
       </div>
     </div>

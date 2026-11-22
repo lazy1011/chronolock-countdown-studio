@@ -7,19 +7,20 @@ import {
   Plus, 
   Trash2, 
   Check, 
-  CheckCircle2, 
-  Circle, 
+  CheckSquare, 
+  Square, 
   Sparkles, 
   Download, 
   Maximize2, 
   FileText, 
   Layers,
-  ArrowRight
+  Bell,
+  HelpCircle
 } from 'lucide-react';
 
 import { PRESET_DEADLINES, PRESET_THEMES, DEVICE_PROFILES } from '../constants/presets';
-import { generateGeminiMilestones } from '../utils/aiScheduler';
 import { exportToICS } from '../utils/calendarExport';
+import ImageInspiration from './ImageInspiration';
 
 export default function ControlsPanel({
   deadline,
@@ -28,6 +29,8 @@ export default function ControlsPanel({
   setMilestones,
   themeId,
   setThemeId,
+  customPalette,
+  setCustomPalette,
   deviceProfileId,
   setDeviceProfileId,
   showOsOverlay,
@@ -36,10 +39,12 @@ export default function ControlsPanel({
   setShowSafeZones,
   onOpenAOD,
   onOpenExport,
-  onOpenSubmissionKit
+  onOpenSubmissionKit,
+  onOpenWizard
 }) {
-  const [activeTab, setActiveTab] = useState('milestones'); // 'milestones' | 'style' | 'deadline'
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [activeTab, setActiveTab] = useState('milestones'); // 'milestones' | 'style' | 'schedule'
+  const [notifyTime, setNotifyTime] = useState('09:00');
+  const [notifyEnabled, setNotifyEnabled] = useState(false);
 
   const handleSelectPreset = (preset) => {
     setDeadline({
@@ -52,6 +57,7 @@ export default function ControlsPanel({
     });
     setMilestones(preset.milestones);
     setThemeId(preset.theme);
+    setCustomPalette(null);
   };
 
   const handleToggleMilestone = (id) => {
@@ -68,29 +74,30 @@ export default function ControlsPanel({
       ...milestones,
       {
         id: nextId,
-        title: 'New checkpoint',
+        tLabel: 'T-Custom',
+        title: 'New key checkpoint', // strictly under 5 words
         date: 'Scheduled',
         done: false,
-        note: 'Key execution task'
+        note: 'High impact task'
       }
     ]);
   };
 
-  const handleScheduleGeneration = async () => {
-    setIsGenerating(true);
-    try {
-      const generated = await generateGeminiMilestones(
-        deadline.title,
-        deadline.category,
-        deadline.targetDate
-      );
-      if (generated && generated.length > 0) {
-        setMilestones(generated);
+  const handleToggleNotifications = async () => {
+    if (!notifyEnabled) {
+      if ('Notification' in window) {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+          setNotifyEnabled(true);
+          new Notification('ChronoLock Daily Check Scheduled', {
+            body: `Every day at ${notifyTime}, we'll check milestones for ${deadline.title}.`
+          });
+        } else {
+          alert('Please allow browser notifications to receive daily milestone alerts.');
+        }
       }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsGenerating(false);
+    } else {
+      setNotifyEnabled(false);
     }
   };
 
@@ -100,21 +107,41 @@ export default function ControlsPanel({
       <div className="mb-4">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <h2 className="text-sm font-semibold text-white tracking-tight">Inspector</h2>
-            <p className="text-xs text-neutral-400">Lock screen layout & countdown</p>
+            <h2 className="text-sm font-semibold text-white tracking-tight">Studio Configuration</h2>
+            <p className="text-xs text-neutral-400">Lock screen layout & T-minus milestones</p>
           </div>
           <button
             type="button"
             onClick={onOpenSubmissionKit}
-            className="px-3 py-1.5 rounded-xl border border-neutral-700 bg-neutral-900 hover:bg-neutral-800 text-neutral-200 text-xs font-medium flex items-center gap-1.5 transition"
+            className="h-8 px-3 rounded-xl border border-neutral-700 bg-neutral-900 hover:bg-neutral-800 text-neutral-200 text-xs font-medium flex items-center gap-1.5 transition"
           >
             <FileText className="w-3.5 h-3.5 text-neutral-400" />
             <span>Submission Kit</span>
           </button>
         </div>
 
-        {/* Preset Selector */}
-        <div className="space-y-1.5">
+        {/* 3-Question Planner Callout Button */}
+        <button
+          type="button"
+          onClick={onOpenWizard}
+          className="w-full mb-3 p-3 rounded-2xl bg-gradient-to-r from-neutral-800 to-neutral-900 border border-neutral-700 hover:border-neutral-500 text-left flex items-center justify-between transition group"
+        >
+          <div>
+            <div className="flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <span className="text-xs font-semibold text-white">3-Question Backward Plan</span>
+            </div>
+            <p className="text-[11px] text-neutral-400 mt-0.5">
+              Answer 3 schedule questions to generate T-14, T-7, T-3, T-1 milestones
+            </p>
+          </div>
+          <span className="h-7 px-2.5 rounded-lg bg-white text-neutral-950 text-xs font-semibold flex items-center justify-center">
+            Start
+          </span>
+        </button>
+
+        {/* Presets List */}
+        <div className="space-y-1">
           <label className="text-[11px] font-medium text-neutral-400 block">Presets</label>
           <div className="grid grid-cols-2 gap-1.5">
             {PRESET_DEADLINES.map(p => (
@@ -157,36 +184,35 @@ export default function ControlsPanel({
               : 'text-neutral-400 hover:text-neutral-200'
           }`}
         >
-          Style & Device
+          Style & Vibe
         </button>
         <button
           type="button"
-          onClick={() => setActiveTab('deadline')}
+          onClick={() => setActiveTab('schedule')}
           className={`py-1.5 rounded-lg transition ${
-            activeTab === 'deadline'
+            activeTab === 'schedule'
               ? 'bg-neutral-800 text-white font-semibold'
               : 'text-neutral-400 hover:text-neutral-200'
           }`}
         >
-          Deadline
+          Daily Alarms
         </button>
       </div>
 
       {/* Tab Panels */}
       <div className="flex-1 overflow-y-auto pr-1">
-        {/* TAB 1: MILESTONES */}
+        {/* TAB 1: MILESTONES WITH CHECKBOXES */}
         {activeTab === 'milestones' && (
           <div className="space-y-3">
             <div className="flex items-center justify-between pb-1 border-b border-neutral-800">
-              <span className="text-xs text-neutral-400">Backward checkpoints</span>
+              <span className="text-xs text-neutral-400">T-Minus Checkpoints (under 5 words)</span>
               <button
                 type="button"
-                onClick={handleScheduleGeneration}
-                disabled={isGenerating}
-                className="text-xs text-neutral-300 hover:text-white transition flex items-center gap-1 font-medium disabled:opacity-50"
+                onClick={onOpenWizard}
+                className="text-xs text-neutral-300 hover:text-white transition flex items-center gap-1 font-medium"
               >
                 <Sparkles className="w-3 h-3 text-amber-400" />
-                <span>{isGenerating ? 'Calculating...' : 'Recalculate schedule'}</span>
+                <span>Re-run 3 questions</span>
               </button>
             </div>
 
@@ -199,17 +225,20 @@ export default function ControlsPanel({
                   <button
                     type="button"
                     onClick={() => handleToggleMilestone(m.id)}
-                    className="mt-1 flex-shrink-0 text-neutral-500 hover:text-emerald-400 transition"
+                    className="mt-0.5 flex-shrink-0 text-neutral-500 hover:text-emerald-400 transition"
                   >
                     {m.done ? (
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      <CheckSquare className="w-4 h-4 text-emerald-400" />
                     ) : (
-                      <Circle className="w-4 h-4 text-neutral-600 hover:text-neutral-400" />
+                      <Square className="w-4 h-4 text-neutral-500 hover:text-neutral-300" />
                     )}
                   </button>
 
                   <div className="flex-1 space-y-1">
                     <div className="flex gap-2">
+                      <span className="text-xs font-mono font-bold text-neutral-400 flex-shrink-0">
+                        {m.tLabel || `T-${Math.max(0, 14 - idx * 4)}`}:
+                      </span>
                       <input
                         type="text"
                         value={m.title}
@@ -226,19 +255,9 @@ export default function ControlsPanel({
                           const val = e.target.value;
                           setMilestones(prev => prev.map(item => item.id === m.id ? { ...item, date: val } : item));
                         }}
-                        className="w-20 text-[10px] font-mono text-right text-neutral-400 bg-transparent border-b border-transparent hover:border-neutral-700 focus:border-neutral-500 focus:outline-none flex-shrink-0"
+                        className="w-16 text-[10px] font-mono text-right text-neutral-400 bg-transparent border-b border-transparent hover:border-neutral-700 focus:border-neutral-500 focus:outline-none flex-shrink-0"
                       />
                     </div>
-                    <input
-                      type="text"
-                      placeholder="Action note"
-                      value={m.note || ''}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setMilestones(prev => prev.map(item => item.id === m.id ? { ...item, note: val } : item));
-                      }}
-                      className="w-full text-[10px] text-neutral-400 bg-transparent border-b border-transparent hover:border-neutral-700 focus:border-neutral-500 focus:outline-none"
-                    />
                   </div>
 
                   <button
@@ -255,20 +274,25 @@ export default function ControlsPanel({
             <button
               type="button"
               onClick={handleAddMilestone}
-              className="w-full py-2.5 rounded-xl border border-dashed border-neutral-700 hover:border-neutral-600 text-xs font-medium text-neutral-300 flex items-center justify-center gap-1.5 transition"
+              className="w-full h-10 rounded-xl border border-dashed border-neutral-700 hover:border-neutral-600 text-xs font-medium text-neutral-300 flex items-center justify-center gap-1.5 transition"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>Add checkpoint</span>
+              <span>Add T-Minus checkpoint</span>
             </button>
           </div>
         )}
 
-        {/* TAB 2: STYLE & DEVICE */}
+        {/* TAB 2: STYLE & IMAGE PALETTE INSPIRATION */}
         {activeTab === 'style' && (
           <div className="space-y-4">
+            {/* Image Inspiration Engine */}
+            <ImageInspiration
+              onApplyPalette={(pal) => setCustomPalette(pal)}
+            />
+
             {/* Device Profiles */}
             <div className="space-y-1.5">
-              <label className="text-[11px] font-medium text-neutral-400 block">Device Mockup</label>
+              <label className="text-[11px] font-medium text-neutral-400 block">Device Layout</label>
               <div className="grid grid-cols-3 gap-2">
                 {Object.values(DEVICE_PROFILES).map(d => (
                   <button
@@ -306,7 +330,7 @@ export default function ControlsPanel({
               <div className="flex items-center justify-between pt-2.5 border-t border-neutral-800">
                 <div>
                   <span className="text-xs font-medium text-neutral-200 block">Safe zone guides</span>
-                  <span className="text-[10px] text-neutral-500">Highlight reserved hardware zones</span>
+                  <span className="text-[10px] text-neutral-500">Highlight top clock headroom</span>
                 </div>
                 <input
                   type="checkbox"
@@ -319,15 +343,18 @@ export default function ControlsPanel({
 
             {/* Theme Presets */}
             <div className="space-y-1.5">
-              <label className="text-[11px] font-medium text-neutral-400 block">Color Theme</label>
+              <label className="text-[11px] font-medium text-neutral-400 block">Aesthetic Themes</label>
               <div className="space-y-1.5">
                 {Object.values(PRESET_THEMES).map(t => (
                   <button
                     key={t.id}
                     type="button"
-                    onClick={() => setThemeId(t.id)}
+                    onClick={() => {
+                      setThemeId(t.id);
+                      setCustomPalette(null);
+                    }}
                     className={`w-full p-2.5 rounded-xl border flex items-center justify-between text-left transition ${
-                      themeId === t.id
+                      themeId === t.id && !customPalette
                         ? 'bg-neutral-800/80 border-neutral-600 text-white'
                         : 'bg-neutral-900/60 border-neutral-800/80 hover:border-neutral-700 text-neutral-300'
                     }`}
@@ -342,7 +369,7 @@ export default function ControlsPanel({
                         <span className="text-[10px] text-neutral-500">{t.category}</span>
                       </div>
                     </div>
-                    {themeId === t.id && <Check className="w-4 h-4 text-white" />}
+                    {themeId === t.id && !customPalette && <Check className="w-4 h-4 text-white" />}
                   </button>
                 ))}
               </div>
@@ -350,17 +377,41 @@ export default function ControlsPanel({
           </div>
         )}
 
-        {/* TAB 3: DEADLINE DETAILS */}
-        {activeTab === 'deadline' && (
-          <div className="space-y-3.5">
-            <div className="space-y-1">
-              <label className="text-[11px] font-medium text-neutral-400 block">Project Title</label>
-              <input
-                type="text"
-                value={deadline.title}
-                onChange={(e) => setDeadline({ ...deadline, title: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-neutral-600"
-              />
+        {/* TAB 3: DAILY NOTIFICATION ALARMS */}
+        {activeTab === 'schedule' && (
+          <div className="space-y-4">
+            <div className="p-4 rounded-2xl bg-neutral-900 border border-neutral-800 space-y-3">
+              <div className="flex items-center gap-2">
+                <Bell className="w-4 h-4 text-amber-400" />
+                <h4 className="text-xs font-semibold text-white">Daily Milestone Accountability Check</h4>
+              </div>
+              <p className="text-[11px] text-neutral-400 leading-relaxed">
+                "Every day at [time] until [deadline], check the countdown in this chat, and send a push notification with any milestone scheduled for today or tomorrow."
+              </p>
+
+              <div className="pt-2 border-t border-neutral-800 flex items-center justify-between">
+                <div>
+                  <label className="text-[11px] font-medium text-neutral-300 block">Notification Check Time</label>
+                  <input
+                    type="time"
+                    value={notifyTime}
+                    onChange={(e) => setNotifyTime(e.target.value)}
+                    className="mt-1 px-3 py-1.5 rounded-xl bg-neutral-950 border border-neutral-800 text-xs text-white font-mono"
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleToggleNotifications}
+                  className={`h-9 px-4 rounded-xl text-xs font-semibold transition ${
+                    notifyEnabled
+                      ? 'bg-emerald-600 text-white'
+                      : 'bg-white text-neutral-950 hover:bg-neutral-200'
+                  }`}
+                >
+                  {notifyEnabled ? '✓ Active Daily' : 'Enable Daily Push'}
+                </button>
+              </div>
             </div>
 
             <div className="space-y-1">
@@ -370,36 +421,6 @@ export default function ControlsPanel({
                 value={deadline.targetDate.slice(0, 16)}
                 onChange={(e) => setDeadline({ ...deadline, targetDate: e.target.value })}
                 className="w-full px-3 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white font-mono focus:outline-none focus:border-neutral-600"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-[11px] font-medium text-neutral-400 block">Category</label>
-              <input
-                type="text"
-                value={deadline.category}
-                onChange={(e) => setDeadline({ ...deadline, category: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-neutral-600"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-[11px] font-medium text-neutral-400 block">Tagline</label>
-              <input
-                type="text"
-                value={deadline.tagline}
-                onChange={(e) => setDeadline({ ...deadline, tagline: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-neutral-600"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-[11px] font-medium text-neutral-400 block">Motivational Anchor</label>
-              <textarea
-                rows={2}
-                value={deadline.dailyAnchor || ''}
-                onChange={(e) => setDeadline({ ...deadline, dailyAnchor: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-neutral-600"
               />
             </div>
           </div>
@@ -412,7 +433,7 @@ export default function ControlsPanel({
           <button
             type="button"
             onClick={onOpenAOD}
-            className="py-2.5 px-3 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-neutral-200 text-xs font-medium border border-neutral-800 flex items-center justify-center gap-1.5 transition"
+            className="h-10 px-3 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-neutral-200 text-xs font-medium border border-neutral-800 flex items-center justify-center gap-1.5 transition"
           >
             <Maximize2 className="w-3.5 h-3.5 text-neutral-400" />
             <span>Always-On Mode</span>
@@ -421,7 +442,7 @@ export default function ControlsPanel({
           <button
             type="button"
             onClick={() => exportToICS(deadline, milestones)}
-            className="py-2.5 px-3 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-neutral-200 text-xs font-medium border border-neutral-800 flex items-center justify-center gap-1.5 transition"
+            className="h-10 px-3 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-neutral-200 text-xs font-medium border border-neutral-800 flex items-center justify-center gap-1.5 transition"
           >
             <Calendar className="w-3.5 h-3.5 text-neutral-400" />
             <span>Sync Calendar</span>
@@ -431,7 +452,7 @@ export default function ControlsPanel({
         <button
           type="button"
           onClick={onOpenExport}
-          className="w-full py-3 rounded-xl bg-white hover:bg-neutral-200 text-neutral-950 text-xs font-semibold flex items-center justify-center gap-2 transition active:scale-[0.99] shadow-md"
+          className="w-full h-11 rounded-xl bg-white hover:bg-neutral-200 text-neutral-950 text-xs font-semibold flex items-center justify-center gap-2 transition active:scale-[0.99] shadow-sm"
         >
           <Download className="w-4 h-4 text-neutral-900" />
           <span>Download Lock Screen Wallpaper</span>

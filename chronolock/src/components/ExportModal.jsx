@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Download, Smartphone, Monitor, CheckCircle, Sparkles, Image as ImageIcon } from 'lucide-react';
+import { X, Download, Smartphone, Monitor, CheckCircle2 } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import confetti from 'canvas-confetti';
 
@@ -11,7 +11,7 @@ export default function ExportModal({
 }) {
   const [isExporting, setIsExporting] = useState(false);
   const [exportSuccess, setExportSuccess] = useState(false);
-  const [resolutionMode, setResolutionMode] = useState('iphone'); // 'iphone' | 'pixel' | 'desktop'
+  const [formatMode, setFormatMode] = useState('phone'); // 'phone' (9:16) | 'desktop' (16:9)
 
   if (!isOpen) return null;
 
@@ -26,25 +26,25 @@ export default function ExportModal({
       // Generate PNG with html-to-image
       const dataUrl = await toPng(node, {
         quality: 0.98,
-        pixelRatio: 2.5, // High resolution crisp export
+        pixelRatio: 2.5,
         cacheBust: true,
       });
 
-      // Create download trigger
+      const filename = `T-MINUS-COUNTDOWN-${deadline.title.toUpperCase().replace(/[^A-Z0-9]/g, '-')}-${formatMode.toUpperCase()}.png`;
       const link = document.createElement('a');
-      link.download = `${deadline.title.toLowerCase().replace(/[^a-z0-9]/g, '-')}-lockscreen.png`;
+      link.download = filename;
       link.href = dataUrl;
       link.click();
 
       // Trigger celebratory confetti
       confetti({
-        particleCount: 80,
-        spread: 70,
+        particleCount: 70,
+        spread: 60,
         origin: { y: 0.6 }
       });
 
       setExportSuccess(true);
-      setTimeout(() => setExportSuccess(false), 4000);
+      setTimeout(() => setExportSuccess(false), 3000);
     } catch (err) {
       console.error('Failed to export wallpaper:', err);
     } finally {
@@ -53,100 +53,92 @@ export default function ExportModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl relative">
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xl flex items-center justify-center p-4">
+      <div className="bg-[#111114] border border-neutral-800 rounded-3xl max-w-md w-full p-6 shadow-2xl relative">
+        {/* Close Button */}
         <button
+          type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition"
+          className="absolute top-5 right-5 w-8 h-8 rounded-full bg-neutral-900 hover:bg-neutral-800 text-neutral-400 hover:text-white border border-neutral-800 flex items-center justify-center transition"
         >
           <X className="w-4 h-4" />
         </button>
 
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
-            <ImageIcon className="w-5 h-5" />
-          </div>
-          <div>
-            <h3 className="text-base font-bold text-white">Export Wallpaper</h3>
-            <p className="text-xs text-slate-400">Ready to set as your lock screen today</p>
-          </div>
+        <div className="mb-5">
+          <h3 className="text-base font-semibold text-white tracking-tight">Export Wallpaper</h3>
+          <p className="text-xs text-neutral-400 mt-0.5">High-resolution lock screen formatted for your device</p>
         </div>
 
-        {/* Resolution Selector */}
-        <div className="space-y-2 mb-4">
-          <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Target Resolution</label>
-          <div className="grid grid-cols-3 gap-2">
+        {/* Aspect Ratio / Format Selector */}
+        <div className="space-y-2 mb-5">
+          <label className="text-[11px] font-medium text-neutral-400 block">Orientation & Resolution</label>
+          <div className="grid grid-cols-2 gap-2">
             <button
-              onClick={() => setResolutionMode('iphone')}
-              className={`p-2.5 rounded-xl text-left border transition ${
-                resolutionMode === 'iphone'
-                  ? 'bg-indigo-600/20 border-indigo-500 text-white'
-                  : 'bg-slate-800/60 border-slate-700/60 text-slate-400'
+              type="button"
+              onClick={() => setFormatMode('phone')}
+              className={`p-3 rounded-2xl text-left border transition flex flex-col justify-between ${
+                formatMode === 'phone'
+                  ? 'bg-neutral-800 text-white border-neutral-600'
+                  : 'bg-neutral-900/60 border-neutral-800 text-neutral-400 hover:text-neutral-200'
               }`}
             >
-              <Smartphone className="w-3.5 h-3.5 mb-1 text-indigo-400" />
-              <div className="text-xs font-bold">iPhone</div>
-              <div className="text-[9px] text-slate-500">1179 × 2556</div>
+              <div className="flex items-center justify-between mb-2">
+                <Smartphone className="w-4 h-4 text-neutral-300" />
+                <span className="text-[10px] font-mono text-neutral-400">9:16</span>
+              </div>
+              <div>
+                <div className="text-xs font-semibold text-white">Phone Lock Screen</div>
+                <div className="text-[10px] font-mono text-neutral-500">1179 × 2556 px</div>
+              </div>
             </button>
 
             <button
-              onClick={() => setResolutionMode('pixel')}
-              className={`p-2.5 rounded-xl text-left border transition ${
-                resolutionMode === 'pixel'
-                  ? 'bg-indigo-600/20 border-indigo-500 text-white'
-                  : 'bg-slate-800/60 border-slate-700/60 text-slate-400'
+              type="button"
+              onClick={() => setFormatMode('desktop')}
+              className={`p-3 rounded-2xl text-left border transition flex flex-col justify-between ${
+                formatMode === 'desktop'
+                  ? 'bg-neutral-800 text-white border-neutral-600'
+                  : 'bg-neutral-900/60 border-neutral-800 text-neutral-400 hover:text-neutral-200'
               }`}
             >
-              <Smartphone className="w-3.5 h-3.5 mb-1 text-cyan-400" />
-              <div className="text-xs font-bold">Pixel / Android</div>
-              <div className="text-[9px] text-slate-500">1280 × 2856</div>
-            </button>
-
-            <button
-              onClick={() => setResolutionMode('desktop')}
-              className={`p-2.5 rounded-xl text-left border transition ${
-                resolutionMode === 'desktop'
-                  ? 'bg-indigo-600/20 border-indigo-500 text-white'
-                  : 'bg-slate-800/60 border-slate-700/60 text-slate-400'
-              }`}
-            >
-              <Monitor className="w-3.5 h-3.5 mb-1 text-emerald-400" />
-              <div className="text-xs font-bold">Desktop / 4K</div>
-              <div className="text-[9px] text-slate-500">2560 × 1600</div>
+              <div className="flex items-center justify-between mb-2">
+                <Monitor className="w-4 h-4 text-neutral-300" />
+                <span className="text-[10px] font-mono text-neutral-400">16:9 / 16:10</span>
+              </div>
+              <div>
+                <div className="text-xs font-semibold text-white">Laptop Wallpaper</div>
+                <div className="text-[10px] font-mono text-neutral-500">2560 × 1600 px</div>
+              </div>
             </button>
           </div>
         </div>
 
-        {/* Instructions banner */}
-        <div className="p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60 mb-5 text-xs text-slate-300 space-y-1.5">
-          <div className="flex items-center gap-1.5 text-indigo-400 font-semibold">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>How to apply on your phone:</span>
-          </div>
-          <ol className="list-decimal list-inside text-[11px] text-slate-400 space-y-1 pl-1">
-            <li>Download the image to your device or AirDrop/save it.</li>
-            <li>Go to <strong>Settings → Wallpaper → Set as Lock Screen</strong>.</li>
-            <li>Position so the top safe zone aligns beneath your iOS/Android clock.</li>
-          </ol>
+        {/* Safe Zone Reminder */}
+        <div className="p-3.5 rounded-2xl bg-neutral-900/80 border border-neutral-800 mb-6 text-xs text-neutral-300 space-y-1.5">
+          <span className="text-[11px] font-semibold text-neutral-200 block">Clean Space Allocation</span>
+          <p className="text-[11px] text-neutral-400 leading-relaxed">
+            The top 35% of this wallpaper leaves generous negative space so your native iOS/Android clock and status icons sit cleanly without collisions.
+          </p>
         </div>
 
-        {/* Download Action */}
+        {/* Primary Action Button */}
         <button
+          type="button"
           onClick={handleDownload}
           disabled={isExporting}
-          className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 disabled:opacity-50 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-xl shadow-indigo-600/30 transition active:scale-[0.99]"
+          className="w-full h-11 rounded-xl bg-white hover:bg-neutral-200 text-neutral-950 text-xs font-semibold flex items-center justify-center gap-2 transition active:scale-[0.99] shadow-sm disabled:opacity-50"
         >
           {isExporting ? (
-            <span>Rendering High-Res PNG...</span>
+            <span>Generating High-Resolution PNG...</span>
           ) : exportSuccess ? (
             <>
-              <CheckCircle className="w-4 h-4 text-white" />
-              <span>Wallpaper Saved Successfully!</span>
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>Wallpaper Saved to Downloads</span>
             </>
           ) : (
             <>
-              <Download className="w-4 h-4" />
-              <span>Download Ultra HD Wallpaper (PNG)</span>
+              <Download className="w-4 h-4 text-neutral-950" />
+              <span>Download T-Minus Wallpaper (PNG)</span>
             </>
           )}
         </button>

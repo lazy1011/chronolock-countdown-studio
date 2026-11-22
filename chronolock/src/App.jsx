@@ -6,7 +6,10 @@ import {
   Award, 
   Eye, 
   EyeOff, 
-  Layers
+  Layers,
+  Sun,
+  Moon,
+  Sparkles
 } from 'lucide-react';
 
 import LockScreenPreview from './components/LockScreenPreview';
@@ -14,6 +17,7 @@ import ControlsPanel from './components/ControlsPanel';
 import AODModal from './components/AODModal';
 import ExportModal from './components/ExportModal';
 import SubmissionKitModal from './components/SubmissionKitModal';
+import ThreeQuestionWizard from './components/ThreeQuestionWizard';
 
 import { PRESET_DEADLINES, PRESET_THEMES, DEVICE_PROFILES } from './constants/presets';
 import { calculateTimeRemaining } from './utils/aiScheduler';
@@ -32,21 +36,23 @@ export default function App() {
 
   const [milestones, setMilestones] = useState(defaultPreset.milestones);
   const [themeId, setThemeId] = useState(defaultPreset.theme);
+  const [customPalette, setCustomPalette] = useState(null);
   const [deviceProfileId, setDeviceProfileId] = useState('iphone16pro');
   const [showOsOverlay, setShowOsOverlay] = useState(true);
   const [showSafeZones, setShowSafeZones] = useState(false);
+  const [isLightMode, setIsLightMode] = useState(false);
 
   // Modals
   const [isAODOpen, setIsAODOpen] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isSubmissionKitOpen, setIsSubmissionKitOpen] = useState(false);
+  const [isWizardOpen, setIsWizardOpen] = useState(false);
 
   // Live countdown timer state
   const [timeRemaining, setTimeRemaining] = useState(() => calculateTimeRemaining(deadline.targetDate));
   const previewRef = useRef(null);
 
   useEffect(() => {
-    // Tick every second
     const interval = setInterval(() => {
       setTimeRemaining(calculateTimeRemaining(deadline.targetDate));
     }, 1000);
@@ -60,25 +66,45 @@ export default function App() {
         setIsAODOpen(false);
         setIsExportOpen(false);
         setIsSubmissionKitOpen(false);
+        setIsWizardOpen(false);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  const handleApplyWizardPlan = (plan) => {
+    setDeadline({
+      ...deadline,
+      title: plan.title,
+      targetDate: plan.targetDate,
+      category: plan.category,
+      tagline: plan.tagline
+    });
+    setMilestones(plan.milestones);
+  };
+
   return (
-    <div className="min-h-screen bg-[#09090b] text-neutral-100 flex flex-col font-sans">
-      {/* Top Navigation */}
-      <header className="border-b border-neutral-800/80 bg-[#09090b]/80 backdrop-blur-xl sticky top-0 z-40 px-5 lg:px-8 py-3.5 flex items-center justify-between">
+    <div className={`min-h-screen transition-colors duration-200 flex flex-col font-sans ${
+      isLightMode ? 'bg-[#f4f4f5] text-neutral-900' : 'bg-[#09090b] text-neutral-100'
+    }`}>
+      {/* Top Header */}
+      <header className={`border-b sticky top-0 z-40 px-5 lg:px-8 py-3.5 flex items-center justify-between backdrop-blur-xl transition-colors ${
+        isLightMode 
+          ? 'border-neutral-200 bg-white/80 text-neutral-900' 
+          : 'border-neutral-800/80 bg-[#09090b]/80 text-neutral-100'
+      }`}>
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-neutral-800 border border-neutral-700 flex items-center justify-center font-bold text-white text-xs">
+          <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs ${
+            isLightMode ? 'bg-neutral-900 text-white' : 'bg-neutral-800 text-white border border-neutral-700'
+          }`}>
             CL
           </div>
           <div>
-            <h1 className="text-sm font-semibold tracking-tight text-white leading-none">
+            <h1 className="text-sm font-semibold tracking-tight leading-none">
               ChronoLock
             </h1>
-            <span className="text-[11px] text-neutral-400 font-normal">
+            <span className="text-[11px] text-neutral-500 font-normal">
               Countdown Lock Screen Studio
             </span>
           </div>
@@ -86,21 +112,56 @@ export default function App() {
 
         {/* Header Actions */}
         <div className="flex items-center gap-2">
+          {/* Light/Dark Mode Switcher */}
+          <button
+            type="button"
+            onClick={() => setIsLightMode(!isLightMode)}
+            className={`h-9 px-3 rounded-xl border text-xs font-medium flex items-center gap-1.5 transition ${
+              isLightMode 
+                ? 'border-neutral-300 bg-neutral-100 hover:bg-neutral-200 text-neutral-700' 
+                : 'border-neutral-700 bg-neutral-900 hover:bg-neutral-800 text-neutral-300'
+            }`}
+            title="Toggle Light/Dark Theme"
+          >
+            {isLightMode ? <Moon className="w-3.5 h-3.5" /> : <Sun className="w-3.5 h-3.5 text-amber-400" />}
+            <span className="hidden sm:inline">{isLightMode ? 'Dark' : 'Light'}</span>
+          </button>
+
+          {/* 3-Question Planner Button */}
+          <button
+            type="button"
+            onClick={() => setIsWizardOpen(true)}
+            className={`h-9 px-3.5 rounded-xl border text-xs font-medium flex items-center gap-1.5 transition ${
+              isLightMode 
+                ? 'border-neutral-300 bg-neutral-100 hover:bg-neutral-200 text-neutral-800' 
+                : 'border-neutral-700 bg-neutral-900 hover:bg-neutral-800 text-neutral-200'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span className="hidden sm:inline">3-Question Plan</span>
+          </button>
+
+          {/* Submission Kit Button */}
           <button
             type="button"
             onClick={() => setIsSubmissionKitOpen(true)}
-            className="px-3 py-1.5 rounded-xl border border-neutral-700 bg-neutral-900 hover:bg-neutral-800 text-neutral-200 text-xs font-medium flex items-center gap-1.5 transition"
+            className={`h-9 px-3.5 rounded-xl border text-xs font-medium flex items-center gap-1.5 transition ${
+              isLightMode 
+                ? 'border-neutral-300 bg-neutral-100 hover:bg-neutral-200 text-neutral-800' 
+                : 'border-neutral-700 bg-neutral-900 hover:bg-neutral-800 text-neutral-200'
+            }`}
           >
             <Award className="w-3.5 h-3.5 text-neutral-400" />
-            <span>Submission Kit</span>
+            <span className="hidden sm:inline">Submission Kit</span>
           </button>
 
+          {/* Export Wallpaper Button */}
           <button
             type="button"
             onClick={() => setIsExportOpen(true)}
-            className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-neutral-200 text-neutral-950 text-xs font-semibold flex items-center gap-1.5 transition active:scale-95 shadow-sm"
+            className="h-9 px-4 rounded-xl bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200 text-xs font-semibold flex items-center gap-1.5 transition active:scale-95 shadow-sm"
           >
-            <Download className="w-3.5 h-3.5 text-neutral-900" />
+            <Download className="w-3.5 h-3.5" />
             <span>Export Wallpaper</span>
           </button>
         </div>
@@ -112,12 +173,16 @@ export default function App() {
         <div className="lg:col-span-7 flex flex-col items-center justify-center space-y-4">
           {/* Quick Mockup Options Bar */}
           <div className="flex items-center justify-between w-full max-w-sm px-1 text-xs text-neutral-400">
-            <div className="flex items-center gap-1 bg-neutral-900 p-1 rounded-xl border border-neutral-800">
+            <div className={`flex items-center gap-1 p-1 rounded-xl border ${
+              isLightMode ? 'bg-white border-neutral-300' : 'bg-neutral-900 border-neutral-800'
+            }`}>
               <button
                 type="button"
                 onClick={() => setDeviceProfileId('iphone16pro')}
                 className={`px-2.5 py-1 rounded-lg font-medium transition ${
-                  deviceProfileId === 'iphone16pro' ? 'bg-neutral-800 text-white' : 'hover:text-neutral-200'
+                  deviceProfileId === 'iphone16pro' 
+                    ? isLightMode ? 'bg-neutral-900 text-white' : 'bg-neutral-800 text-white' 
+                    : isLightMode ? 'text-neutral-600 hover:text-black' : 'text-neutral-400 hover:text-white'
                 }`}
               >
                 iPhone 16 Pro
@@ -126,7 +191,9 @@ export default function App() {
                 type="button"
                 onClick={() => setDeviceProfileId('pixel9pro')}
                 className={`px-2.5 py-1 rounded-lg font-medium transition ${
-                  deviceProfileId === 'pixel9pro' ? 'bg-neutral-800 text-white' : 'hover:text-neutral-200'
+                  deviceProfileId === 'pixel9pro' 
+                    ? isLightMode ? 'bg-neutral-900 text-white' : 'bg-neutral-800 text-white' 
+                    : isLightMode ? 'text-neutral-600 hover:text-black' : 'text-neutral-400 hover:text-white'
                 }`}
               >
                 Pixel 9 Pro
@@ -135,7 +202,9 @@ export default function App() {
                 type="button"
                 onClick={() => setDeviceProfileId('desktop4k')}
                 className={`px-2.5 py-1 rounded-lg font-medium transition ${
-                  deviceProfileId === 'desktop4k' ? 'bg-neutral-800 text-white' : 'hover:text-neutral-200'
+                  deviceProfileId === 'desktop4k' 
+                    ? isLightMode ? 'bg-neutral-900 text-white' : 'bg-neutral-800 text-white' 
+                    : isLightMode ? 'text-neutral-600 hover:text-black' : 'text-neutral-400 hover:text-white'
                 }`}
               >
                 Desktop
@@ -146,10 +215,10 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setShowOsOverlay(!showOsOverlay)}
-                className={`px-2.5 py-1.5 rounded-xl border text-[11px] font-medium flex items-center gap-1 transition ${
+                className={`h-8 px-2.5 rounded-xl border text-[11px] font-medium flex items-center gap-1 transition ${
                   showOsOverlay 
-                    ? 'bg-neutral-800 text-white border-neutral-700' 
-                    : 'bg-transparent text-neutral-400 border-neutral-800 hover:text-white'
+                    ? isLightMode ? 'bg-neutral-900 text-white border-neutral-900' : 'bg-neutral-800 text-white border-neutral-700' 
+                    : isLightMode ? 'bg-white text-neutral-600 border-neutral-300' : 'bg-transparent text-neutral-400 border-neutral-800 hover:text-white'
                 }`}
                 title="Toggle simulated lock screen clock"
               >
@@ -160,10 +229,10 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setShowSafeZones(!showSafeZones)}
-                className={`px-2.5 py-1.5 rounded-xl border text-[11px] font-medium flex items-center gap-1 transition ${
+                className={`h-8 px-2.5 rounded-xl border text-[11px] font-medium flex items-center gap-1 transition ${
                   showSafeZones 
                     ? 'bg-rose-950/60 text-rose-300 border-rose-500/50' 
-                    : 'bg-transparent text-neutral-400 border-neutral-800 hover:text-white'
+                    : isLightMode ? 'bg-white text-neutral-600 border-neutral-300' : 'bg-transparent text-neutral-400 border-neutral-800 hover:text-white'
                 }`}
                 title="Show safe zone guides"
               >
@@ -173,13 +242,14 @@ export default function App() {
             </div>
           </div>
 
-          {/* Realistic Device Screen Canvas */}
+          {/* Device Screen Canvas */}
           <div className="w-full flex justify-center py-2">
             <LockScreenPreview
               ref={previewRef}
               deadline={deadline}
               milestones={milestones}
               themeId={themeId}
+              customPalette={customPalette}
               deviceProfileId={deviceProfileId}
               showOsOverlay={showOsOverlay}
               showSafeZones={showSafeZones}
@@ -201,6 +271,8 @@ export default function App() {
             setMilestones={setMilestones}
             themeId={themeId}
             setThemeId={setThemeId}
+            customPalette={customPalette}
+            setCustomPalette={setCustomPalette}
             deviceProfileId={deviceProfileId}
             setDeviceProfileId={setDeviceProfileId}
             showOsOverlay={showOsOverlay}
@@ -210,18 +282,21 @@ export default function App() {
             onOpenAOD={() => setIsAODOpen(true)}
             onOpenExport={() => setIsExportOpen(true)}
             onOpenSubmissionKit={() => setIsSubmissionKitOpen(true)}
+            onOpenWizard={() => setIsWizardOpen(true)}
           />
         </div>
       </main>
 
       {/* Clean Footer */}
-      <footer className="border-t border-neutral-800/80 py-4 px-6 text-center text-xs text-neutral-500 flex flex-col sm:flex-row items-center justify-between gap-3 max-w-7xl mx-auto w-full">
+      <footer className={`border-t py-4 px-6 text-center text-xs flex flex-col sm:flex-row items-center justify-between gap-3 max-w-7xl mx-auto w-full transition-colors ${
+        isLightMode ? 'border-neutral-200 text-neutral-500' : 'border-neutral-800/80 text-neutral-500'
+      }`}>
         <span>Handshake AI Skills Studio × Google "Your Deadline, Your Design" Challenge</span>
         <div className="flex items-center gap-4 text-neutral-400">
           <button 
             type="button"
             onClick={() => setIsSubmissionKitOpen(true)} 
-            className="hover:text-white transition underline underline-offset-4"
+            className="hover:underline transition underline-offset-4"
           >
             Submission Kit
           </button>
@@ -229,7 +304,7 @@ export default function App() {
           <button 
             type="button"
             onClick={() => setIsExportOpen(true)} 
-            className="hover:text-white transition"
+            className="hover:underline transition"
           >
             Export Wallpaper
           </button>
@@ -257,6 +332,12 @@ export default function App() {
         isOpen={isSubmissionKitOpen}
         onClose={() => setIsSubmissionKitOpen(false)}
         deadline={deadline}
+      />
+
+      <ThreeQuestionWizard
+        isOpen={isWizardOpen}
+        onClose={() => setIsWizardOpen(false)}
+        onApplyPlan={handleApplyWizardPlan}
       />
     </div>
   );

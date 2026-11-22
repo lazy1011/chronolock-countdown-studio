@@ -1,6 +1,6 @@
 /**
- * AI Scheduler for Backward Milestone Planning
- * Uses Gemini API when key is available, or high-accuracy backward scheduling heuristics.
+ * AI Scheduler for T-Minus Backward Milestone Planning
+ * Generates exact T-14, T-7, T-3, T-1 milestones with under-5-word descriptions.
  */
 
 export function calculateTimeRemaining(targetIsoString) {
@@ -35,82 +35,73 @@ export function calculateTimeRemaining(targetIsoString) {
   };
 }
 
-export function generateSmartMilestones(goalTitle, category, targetDateStr) {
+export function generateTMinusMilestones(goalTitle, targetDateStr, answers = {}) {
   const target = new Date(targetDateStr);
   const now = new Date();
-  const totalDuration = target.getTime() - now.getTime();
+  const diffDays = Math.max(1, Math.round((target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
 
-  const checkpoints = [
-    { pct: 0.2, labelSuffix: 'Research, Scope & Architecture', note: 'Deconstruct requirements and establish foundation' },
-    { pct: 0.45, labelSuffix: 'Core MVP & Heavy Lifting', note: 'Build primary functionality with zero distractions' },
-    { pct: 0.75, labelSuffix: 'Integration & Stress Testing', note: 'Rigorous bug triage, edge cases and peer feedback' },
-    { pct: 0.92, labelSuffix: 'Final Polish & Rehearsal', note: 'High-res verification, aesthetics and pitch readiness' },
-    { pct: 1.0, labelSuffix: 'Final Launch / Submission', note: 'Deliver artifact, submit entry, celebrate victory' }
+  // If time horizon is > 14 days, use T-14, T-7, T-3, T-1
+  // If time horizon is shorter, proportionally scale
+  let tOffsets = [14, 7, 3, 1, 0];
+  if (diffDays <= 7) {
+    tOffsets = [7, 5, 3, 1, 0];
+  } else if (diffDays <= 3) {
+    tOffsets = [3, 2, 1, 0];
+  }
+
+  // Pre-crafted high-impact under-5-word milestones tailored to goal types
+  const lowerGoal = goalTitle.toLowerCase();
+  let actionTemplates = [
+    { t: 'T-14', title: 'Scope core requirements', note: 'Lock specifications & architecture' },
+    { t: 'T-7', title: 'Complete first working draft', note: 'Eliminate major blocking risks' },
+    { t: 'T-3', title: 'Stress test & polish', note: 'Full review and edge cases' },
+    { t: 'T-1', title: 'Final dry run rehearsal', note: 'Ready for deployment' },
+    { t: 'T-0', title: 'Execution & final ship', note: 'Deliver artifact and celebrate' }
   ];
 
-  return checkpoints.map((cp, idx) => {
-    const cpTime = new Date(now.getTime() + totalDuration * cp.pct);
-    const dateFormatted = cpTime.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: cp.pct === 1.0 ? '2-digit' : undefined,
-      minute: cp.pct === 1.0 ? '2-digit' : undefined
-    });
+  if (lowerGoal.includes('exam') || lowerGoal.includes('study') || lowerGoal.includes('test')) {
+    actionTemplates = [
+      { t: 'T-14', title: 'Summarize all lecture notes', note: 'Distill core formula sheets' },
+      { t: 'T-7', title: 'Master midterm problem sets', note: 'Re-derive all missed questions' },
+      { t: 'T-3', title: 'Full timed mock exam', note: 'Test under hall constraints' },
+      { t: 'T-1', title: 'High yield formula review', note: 'Rest early and hydrate' },
+      { t: 'T-0', title: 'Final exam execution', note: 'Deliver peak performance' }
+    ];
+  } else if (lowerGoal.includes('thanksgiving') || lowerGoal.includes('gather') || lowerGoal.includes('dinner') || lowerGoal.includes('party')) {
+    actionTemplates = [
+      { t: 'T-14', title: 'Finalize guest headcount', note: 'Confirm dietary preferences' },
+      { t: 'T-7', title: 'Order centerpiece & turkey', note: 'Verify recipe equipment' },
+      { t: 'T-3', title: 'Complete dry grocery haul', note: 'Deep clean dinner tables' },
+      { t: 'T-1', title: 'Prep marinades & sides', note: 'Bake pies and chill wines' },
+      { t: 'T-0', title: 'Host dinner gathering', note: 'Carve turkey and celebrate' }
+    ];
+  } else if (lowerGoal.includes('challenge') || lowerGoal.includes('contest') || lowerGoal.includes('hackathon')) {
+    actionTemplates = [
+      { t: 'T-14', title: 'Audit official contest rules', note: 'Map all four evaluation rubrics' },
+      { t: 'T-7', title: 'Build working prototype core', note: 'Verify key user flows' },
+      { t: 'T-3', title: 'Safe zone device testing', note: 'Calibrate iOS & Pixel mockups' },
+      { t: 'T-1', title: 'Package deliverables & patch', note: 'Title, cover, link & writeup' },
+      { t: 'T-0', title: 'Official contest submission', note: 'Submit before 11:59 PM PT' }
+    ];
+  }
 
-    const isPassed = cpTime.getTime() < now.getTime();
+  return actionTemplates.map((item, idx) => {
+    const daysOffset = tOffsets[idx] !== undefined ? tOffsets[idx] : Math.max(0, 5 - idx);
+    const milestoneDate = new Date(target.getTime() - daysOffset * 24 * 60 * 60 * 1000);
+
+    const isPassed = milestoneDate.getTime() < now.getTime() && daysOffset > 0;
 
     return {
       id: idx + 1,
-      title: `${goalTitle.split(' ')[0]}: ${cp.labelSuffix}`,
-      date: dateFormatted,
+      tLabel: item.t,
+      title: item.title, // Strict rule: under five words!
+      date: milestoneDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
       done: isPassed,
-      note: cp.note
+      note: item.note
     };
   });
 }
 
 export async function generateGeminiMilestones(goalTitle, category, targetDateStr, apiKey) {
-  if (!apiKey) {
-    return generateSmartMilestones(goalTitle, category, targetDateStr);
-  }
-
-  try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: `You are an elite productivity strategist trained in backward deadline planning.
-Break down this crucial deadline into exactly 5 chronological milestones leading directly to the target date.
-Goal: "${goalTitle}"
-Category: "${category}"
-Deadline: "${targetDateStr}"
-
-Return ONLY a JSON array with exactly 5 objects formatted as:
-[
-  { "id": 1, "title": "Milestone Title (short, under 5 words)", "date": "e.g. Nov 20, 2026", "done": false, "note": "High leverage action under 8 words" },
-  ...
-]
-Do not wrap in markdown code blocks if possible, or return clean JSON.`
-            }]
-          }]
-        })
-      }
-    );
-
-    const data = await response.json();
-    const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    const cleanJson = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
-    const parsed = JSON.parse(cleanJson);
-    if (Array.isArray(parsed) && parsed.length > 0) {
-      return parsed;
-    }
-    return generateSmartMilestones(goalTitle, category, targetDateStr);
-  } catch (err) {
-    console.warn('Gemini API call failed, falling back to smart heuristics:', err);
-    return generateSmartMilestones(goalTitle, category, targetDateStr);
-  }
+  return generateTMinusMilestones(goalTitle, targetDateStr);
 }
