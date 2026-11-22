@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { 
-  Smartphone, 
-  Monitor, 
   Calendar, 
   Clock, 
   Plus, 
@@ -15,10 +13,11 @@ import {
   FileText, 
   Layers,
   Bell,
-  HelpCircle
+  Palette,
+  Image as ImageIcon
 } from 'lucide-react';
 
-import { PRESET_DEADLINES, PRESET_THEMES, DEVICE_PROFILES } from '../constants/presets';
+import { PRESET_DEADLINES, WALLPAPER_BACKGROUNDS, DEVICE_PROFILES } from '../constants/presets';
 import { exportToICS } from '../utils/calendarExport';
 import ImageInspiration from './ImageInspiration';
 
@@ -27,8 +26,8 @@ export default function ControlsPanel({
   setDeadline,
   milestones,
   setMilestones,
-  themeId,
-  setThemeId,
+  selectedBgId,
+  setSelectedBgId,
   customPalette,
   setCustomPalette,
   deviceProfileId,
@@ -56,8 +55,6 @@ export default function ControlsPanel({
       dailyAnchor: preset.dailyAnchor
     });
     setMilestones(preset.milestones);
-    setThemeId(preset.theme);
-    setCustomPalette(null);
   };
 
   const handleToggleMilestone = (id) => {
@@ -75,7 +72,7 @@ export default function ControlsPanel({
       {
         id: nextId,
         tLabel: 'T-Custom',
-        title: 'New key checkpoint', // strictly under 5 words
+        title: 'New key checkpoint',
         date: 'Scheduled',
         done: false,
         note: 'High impact task'
@@ -124,7 +121,7 @@ export default function ControlsPanel({
         <button
           type="button"
           onClick={onOpenWizard}
-          className="w-full mb-3 p-3 rounded-2xl bg-gradient-to-r from-neutral-800 to-neutral-900 border border-neutral-700 hover:border-neutral-500 text-left flex items-center justify-between transition group"
+          className="w-full mb-3 p-3 rounded-2xl bg-neutral-900 hover:bg-neutral-850 border border-neutral-700 hover:border-neutral-500 text-left flex items-center justify-between transition group"
         >
           <div>
             <div className="flex items-center gap-1.5">
@@ -184,7 +181,7 @@ export default function ControlsPanel({
               : 'text-neutral-400 hover:text-neutral-200'
           }`}
         >
-          Style & Vibe
+          3D Wallpaper & Vibe
         </button>
         <button
           type="button"
@@ -282,15 +279,48 @@ export default function ControlsPanel({
           </div>
         )}
 
-        {/* TAB 2: STYLE & IMAGE PALETTE INSPIRATION */}
+        {/* TAB 2: 3D WALLPAPERS & IMAGE INSPIRATION */}
         {activeTab === 'style' && (
           <div className="space-y-4">
-            {/* Image Inspiration Engine */}
+            {/* Curated 3D & Photographic Wallpapers */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-medium text-neutral-400 block">
+                Atmospheric 3D Wallpaper Backgrounds
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {WALLPAPER_BACKGROUNDS.map(wb => (
+                  <button
+                    key={wb.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedBgId(wb.id);
+                      setCustomPalette(null);
+                    }}
+                    className={`p-2.5 rounded-2xl border text-left flex items-center gap-2.5 transition ${
+                      selectedBgId === wb.id && !customPalette
+                        ? 'bg-neutral-800 text-white border-neutral-500 shadow-sm'
+                        : 'bg-neutral-900/60 border-neutral-800 text-neutral-400 hover:text-neutral-200'
+                    }`}
+                  >
+                    <div 
+                      className="w-6 h-6 rounded-lg shadow-inner flex-shrink-0"
+                      style={{ background: wb.preview }}
+                    />
+                    <div className="min-w-0">
+                      <span className="text-xs font-semibold text-white block truncate">{wb.name}</span>
+                      <span className="text-[10px] text-neutral-500 block truncate">{wb.category}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Custom Image Upload & Palette Extraction */}
             <ImageInspiration
               onApplyPalette={(pal) => setCustomPalette(pal)}
             />
 
-            {/* Device Profiles */}
+            {/* Device Layout */}
             <div className="space-y-1.5">
               <label className="text-[11px] font-medium text-neutral-400 block">Device Layout</label>
               <div className="grid grid-cols-3 gap-2">
@@ -338,40 +368,6 @@ export default function ControlsPanel({
                   onChange={(e) => setShowSafeZones(e.target.checked)}
                   className="w-4 h-4 rounded text-neutral-600 bg-neutral-950 border-neutral-700"
                 />
-              </div>
-            </div>
-
-            {/* Theme Presets */}
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-medium text-neutral-400 block">Aesthetic Themes</label>
-              <div className="space-y-1.5">
-                {Object.values(PRESET_THEMES).map(t => (
-                  <button
-                    key={t.id}
-                    type="button"
-                    onClick={() => {
-                      setThemeId(t.id);
-                      setCustomPalette(null);
-                    }}
-                    className={`w-full p-2.5 rounded-xl border flex items-center justify-between text-left transition ${
-                      themeId === t.id && !customPalette
-                        ? 'bg-neutral-800/80 border-neutral-600 text-white'
-                        : 'bg-neutral-900/60 border-neutral-800/80 hover:border-neutral-700 text-neutral-300'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <div 
-                        className="w-4 h-4 rounded-full border border-white/20"
-                        style={{ backgroundColor: t.accent }}
-                      />
-                      <div>
-                        <span className="text-xs font-semibold block">{t.name}</span>
-                        <span className="text-[10px] text-neutral-500">{t.category}</span>
-                      </div>
-                    </div>
-                    {themeId === t.id && !customPalette && <Check className="w-4 h-4 text-white" />}
-                  </button>
-                ))}
               </div>
             </div>
           </div>

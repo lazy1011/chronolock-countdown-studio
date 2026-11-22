@@ -1,78 +1,99 @@
+export const WALLPAPER_BACKGROUNDS = [
+  {
+    id: 'cosmic-nebula',
+    name: 'Cosmic Nebula 3D',
+    category: 'Cinematic Space',
+    bg: 'radial-gradient(ellipse at 80% 20%, rgba(120, 50, 255, 0.35) 0%, transparent 60%), radial-gradient(ellipse at 20% 80%, rgba(249, 115, 22, 0.22) 0%, transparent 60%), radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.15) 0%, transparent 70%), #040408',
+    accent: '#f97316',
+    preview: 'linear-gradient(135deg, #2e0854 0%, #040408 50%, #f97316 100%)'
+  },
+  {
+    id: 'cyber-dusk',
+    name: 'Cyberpunk Tokyo',
+    category: 'Neon Atmosphere',
+    bg: 'radial-gradient(circle at 50% 10%, rgba(244, 63, 94, 0.3) 0%, transparent 50%), radial-gradient(circle at 100% 90%, rgba(245, 158, 11, 0.25) 0%, transparent 60%), linear-gradient(180deg, #09060b 0%, #150918 60%, #060309 100%)',
+    accent: '#f43f5e',
+    preview: 'linear-gradient(135deg, #4c0519 0%, #09060b 50%, #f59e0b 100%)'
+  },
+  {
+    id: 'architectural-monolith',
+    name: 'Architectural Monolith',
+    category: '3D Geometry',
+    bg: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 40%), linear-gradient(225deg, rgba(255,255,255,0.05) 0%, transparent 50%), linear-gradient(180deg, #111116 0%, #050507 100%)',
+    accent: '#38bdf8',
+    preview: 'linear-gradient(135deg, #27272a 0%, #111116 50%, #38bdf8 100%)'
+  },
+  {
+    id: 'alpine-twilight',
+    name: 'Alpine Glacier',
+    category: 'Atmospheric Mountain',
+    bg: 'radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.25) 0%, transparent 55%), radial-gradient(circle at 10% 90%, rgba(99, 102, 241, 0.2) 0%, transparent 60%), #030712',
+    accent: '#38bdf8',
+    preview: 'linear-gradient(135deg, #0c4a6e 0%, #030712 50%, #818cf8 100%)'
+  },
+  {
+    id: 'solar-dunes',
+    name: 'Golden Hour Dunes',
+    category: 'Warm Horizon',
+    bg: 'radial-gradient(ellipse at 50% 100%, rgba(245, 158, 11, 0.3) 0%, transparent 70%), radial-gradient(circle at 90% 10%, rgba(239, 68, 68, 0.15) 0%, transparent 50%), #090604',
+    accent: '#f59e0b',
+    preview: 'linear-gradient(135deg, #78350f 0%, #090604 50%, #f59e0b 100%)'
+  },
+  {
+    id: 'titanium-dark',
+    name: 'Pure Obsidian OLED',
+    category: 'Minimalist Black',
+    bg: '#000000',
+    accent: '#ffffff',
+    preview: 'linear-gradient(135deg, #18181b 0%, #000000 100%)'
+  }
+];
+
 export const PRESET_THEMES = {
   titanium: {
     id: 'titanium',
     name: 'Obsidian Titanium',
     category: 'Minimalist Dark',
-    accent: '#f97316', // Precision Safety Orange
-    accentSecondary: '#38bdf8',
+    accent: '#f97316',
     bg: '#050507',
-    wallpaperBg: 'linear-gradient(180deg, #050507 0%, #0c0d12 50%, #050507 100%)',
-    overlayMesh: 'radial-gradient(circle at 50% 15%, rgba(249, 115, 22, 0.08) 0%, transparent 60%)',
-    surface: 'rgba(255, 255, 255, 0.04)',
-    border: 'rgba(255, 255, 255, 0.08)',
-    textPrimary: '#ffffff',
-    textSecondary: '#8e8e93',
-    monoFont: true
-  },
-  swiss: {
-    id: 'swiss',
-    name: 'Swiss Monochrome',
-    category: 'High Contrast',
-    accent: '#ffffff',
-    accentSecondary: '#a1a1aa',
-    bg: '#000000',
-    wallpaperBg: '#000000',
-    overlayMesh: 'radial-gradient(circle at 50% 10%, rgba(255, 255, 255, 0.06) 0%, transparent 50%)',
-    surface: 'rgba(255, 255, 255, 0.05)',
-    border: 'rgba(255, 255, 255, 0.14)',
-    textPrimary: '#ffffff',
-    textSecondary: '#a1a1aa',
-    monoFont: false
-  },
-  solar: {
-    id: 'solar',
-    name: 'Solar Amber',
-    category: 'Warm Focus',
-    accent: '#f59e0b',
-    accentSecondary: '#ef4444',
-    bg: '#070503',
-    wallpaperBg: 'linear-gradient(180deg, #090604 0%, #150f09 60%, #070503 100%)',
-    overlayMesh: 'radial-gradient(circle at 50% 20%, rgba(245, 158, 11, 0.12) 0%, transparent 60%)',
-    surface: 'rgba(245, 158, 11, 0.05)',
-    border: 'rgba(245, 158, 11, 0.15)',
-    textPrimary: '#fffbeb',
-    textSecondary: '#a8a29e',
-    monoFont: true
-  },
-  nordic: {
-    id: 'nordic',
-    name: 'Alpine Slate',
-    category: 'Cool Calm',
-    accent: '#38bdf8',
-    accentSecondary: '#818cf8',
-    bg: '#04070c',
-    wallpaperBg: 'linear-gradient(180deg, #04070c 0%, #0b111a 60%, #04070c 100%)',
-    overlayMesh: 'radial-gradient(circle at 50% 15%, rgba(56, 189, 248, 0.1) 0%, transparent 55%)',
-    surface: 'rgba(255, 255, 255, 0.04)',
-    border: 'rgba(56, 189, 248, 0.15)',
-    textPrimary: '#f0f9ff',
-    textSecondary: '#94a3b8',
-    monoFont: false
+    wallpaperBg: WALLPAPER_BACKGROUNDS[0].bg,
+    textPrimary: '#ffffff'
   },
   cyber: {
     id: 'cyber',
-    name: 'Terminal HUD',
-    category: 'Engineering',
-    accent: '#10b981',
-    accentSecondary: '#06b6d4',
-    bg: '#020503',
-    wallpaperBg: 'linear-gradient(180deg, #020503 0%, #050e09 50%, #020503 100%)',
-    overlayMesh: 'radial-gradient(circle at 50% 10%, rgba(16, 185, 129, 0.1) 0%, transparent 60%)',
-    surface: 'rgba(16, 185, 129, 0.04)',
-    border: 'rgba(16, 185, 129, 0.2)',
-    textPrimary: '#ecfdf5',
-    textSecondary: '#6ee7b7',
-    monoFont: true
+    name: 'Cyber Tokyo',
+    category: 'Neon Atmosphere',
+    accent: '#f43f5e',
+    bg: '#09060b',
+    wallpaperBg: WALLPAPER_BACKGROUNDS[1].bg,
+    textPrimary: '#ffffff'
+  },
+  swiss: {
+    id: 'swiss',
+    name: 'Swiss Monolith',
+    category: '3D Geometry',
+    accent: '#38bdf8',
+    bg: '#050507',
+    wallpaperBg: WALLPAPER_BACKGROUNDS[2].bg,
+    textPrimary: '#ffffff'
+  },
+  nordic: {
+    id: 'nordic',
+    name: 'Alpine Glacier',
+    category: 'Cool Calm',
+    accent: '#38bdf8',
+    bg: '#030712',
+    wallpaperBg: WALLPAPER_BACKGROUNDS[3].bg,
+    textPrimary: '#f0f9ff'
+  },
+  solar: {
+    id: 'solar',
+    name: 'Golden Dunes',
+    category: 'Warm Focus',
+    accent: '#f59e0b',
+    bg: '#090604',
+    wallpaperBg: WALLPAPER_BACKGROUNDS[4].bg,
+    textPrimary: '#fffbeb'
   }
 };
 
@@ -86,11 +107,11 @@ export const PRESET_DEADLINES = [
     theme: 'titanium',
     dailyAnchor: 'Focus precedes momentum. Deliver with precision.',
     milestones: [
-      { id: 1, title: 'Requirements & Rubric Audit', date: 'Nov 18', done: true, note: 'Mapped the 4 evaluation criteria' },
-      { id: 2, title: 'Safe-Zone Hardware Grid', date: 'Nov 20', done: true, note: 'Unblocked iOS clock & widget headroom' },
-      { id: 3, title: 'Backward Milestone Sequence', date: 'Nov 22', done: true, note: 'Reverse-engineered sprint checkpoints' },
-      { id: 4, title: 'High-Res Wallpaper Calibration', date: 'Nov 23, 12:00', done: false, note: 'Tested iPhone 16 Pro & Pixel 9 Pro' },
-      { id: 5, title: 'Handshake Mission Upload', date: 'Nov 23, 23:59', done: false, note: 'Title, cover image, link & writeup' }
+      { id: 1, tLabel: 'T-14', title: 'Audit official contest rules', date: 'Nov 18', done: true, note: 'Mapped four evaluation rubrics' },
+      { id: 2, tLabel: 'T-7', title: 'Build working prototype core', date: 'Nov 20', done: true, note: 'Safe-zone unblocked headroom' },
+      { id: 3, tLabel: 'T-3', title: 'Safe zone device testing', date: 'Nov 22', done: true, note: 'Tested iPhone 16 Pro & Pixel 9 Pro' },
+      { id: 4, tLabel: 'T-1', title: 'Package deliverables & patch', date: 'Nov 23', done: false, note: 'Title, cover image, link & writeup' },
+      { id: 5, tLabel: 'T-0', title: 'Official contest submission', date: 'Nov 23', done: false, note: 'Submit before 11:59 PM PT' }
     ]
   },
   {
@@ -102,27 +123,27 @@ export const PRESET_DEADLINES = [
     theme: 'solar',
     dailyAnchor: 'One subject per block. Master fundamental principles.',
     milestones: [
-      { id: 1, title: 'Course Synthesis & Core Formulas', date: 'Dec 01', done: true, note: 'Distill lecture slides to 1-page summaries' },
-      { id: 2, title: 'Midterm Homework Retrospective', date: 'Dec 06', done: false, note: 'Re-derive all missed problem sets' },
-      { id: 3, title: '3-Hour Timed Mock Session', date: 'Dec 10', done: false, note: 'Simulate exact exam hall constraints' },
-      { id: 4, title: 'High-Yield Formula Drill', date: 'Dec 13', done: false, note: 'Memory palace for edge-case equations' },
-      { id: 5, title: 'Exam Morning Execution', date: 'Dec 15, 09:00', done: false, note: 'Rest, hydrate, and execute with clarity' }
+      { id: 1, tLabel: 'T-14', title: 'Summarize all lecture notes', date: 'Dec 01', done: true, note: 'Distill core formula sheets' },
+      { id: 2, tLabel: 'T-7', title: 'Master midterm problem sets', date: 'Dec 06', done: false, note: 'Re-derive all missed questions' },
+      { id: 3, tLabel: 'T-3', title: 'Full timed mock exam', date: 'Dec 10', done: false, note: 'Simulate exact exam constraints' },
+      { id: 4, tLabel: 'T-1', title: 'High yield formula review', date: 'Dec 13', done: false, note: 'Rest early and hydrate' },
+      { id: 5, tLabel: 'T-0', title: 'Final exam execution', date: 'Dec 15', done: false, note: 'Deliver peak performance' }
     ]
   },
   {
-    id: 'thesis-defense',
-    title: 'Graduate Thesis Defense',
-    category: 'Research Milestone',
-    targetDate: '2027-01-20T14:00:00',
-    tagline: 'Department Review Committee • Final Examination',
-    theme: 'swiss',
-    dailyAnchor: 'You know your data better than anyone. Defend the rigor.',
+    id: 'thanksgiving-dinner',
+    title: 'Thanksgiving Dinner Gathering',
+    category: 'Holiday Milestone',
+    targetDate: '2026-11-26T17:00:00',
+    tagline: 'Family & Friends • Autumn Celebration',
+    theme: 'solar',
+    dailyAnchor: 'Preparation creates presence. Host with calm joy.',
     milestones: [
-      { id: 1, title: 'Manuscript Final Proofing', date: 'Dec 12', done: true, note: 'Compiled in LaTeX with complete citations' },
-      { id: 2, title: 'Principal Investigator Review', date: 'Dec 28', done: false, note: 'Address committee chair feedback' },
-      { id: 3, title: 'Formal Distribution to Readers', date: 'Jan 05', done: false, note: 'Dispatched 2 weeks prior to defense' },
-      { id: 4, title: 'Slide Presentation Dry Run', date: 'Jan 15', done: false, note: '30-minute pacing with mock adversarial Q&A' },
-      { id: 5, title: 'Committee Defense Day', date: 'Jan 20, 14:00', done: false, note: 'Present findings and celebrate completion' }
+      { id: 1, tLabel: 'T-14', title: 'Finalize guest headcount', date: 'Nov 12', done: true, note: 'Confirm dietary preferences' },
+      { id: 2, tLabel: 'T-7', title: 'Order centerpiece & turkey', date: 'Nov 19', done: true, note: 'Verify recipe equipment' },
+      { id: 3, tLabel: 'T-3', title: 'Complete dry grocery haul', date: 'Nov 23', done: false, note: 'Deep clean dinner tables' },
+      { id: 4, tLabel: 'T-1', title: 'Prep marinades & sides', date: 'Nov 25', done: false, note: 'Bake pies and chill wines' },
+      { id: 5, tLabel: 'T-0', title: 'Host dinner gathering', date: 'Nov 26', done: false, note: 'Carve turkey and celebrate' }
     ]
   },
   {
@@ -131,14 +152,14 @@ export const PRESET_DEADLINES = [
     category: 'Product Launch',
     targetDate: '2026-12-01T08:00:00',
     tagline: 'Production Deploy • Global Distribution',
-    theme: 'nordic',
+    theme: 'swiss',
     dailyAnchor: 'Remove friction from the core loop. Ship what works.',
     milestones: [
-      { id: 1, title: 'Feature Freeze & DB Migration', date: 'Nov 24', done: true, note: 'All end-to-end user flows verified' },
-      { id: 2, title: 'Staging Auth & Billing Audit', date: 'Nov 26', done: false, note: 'Simulated 500 concurrent checkout sessions' },
-      { id: 3, title: 'Demo Walkthrough & Asset Lock', date: 'Nov 28', done: false, note: '45-second high-speed product video' },
-      { id: 4, title: 'Release Candidate Deployment', date: 'Nov 30', done: false, note: 'Canary cluster primed on edge CDN' },
-      { id: 5, title: 'Production DNS Switch', date: 'Dec 01, 08:00', done: false, note: 'Live customer onboarding and telemetry' }
+      { id: 1, tLabel: 'T-14', title: 'Feature freeze & migration', date: 'Nov 24', done: true, note: 'All end-to-end user flows verified' },
+      { id: 2, tLabel: 'T-7', title: 'Staging auth & billing audit', date: 'Nov 26', done: false, note: 'Simulated 500 checkout sessions' },
+      { id: 3, tLabel: 'T-3', title: 'Demo walkthrough & asset lock', date: 'Nov 28', done: false, note: '45-second product video' },
+      { id: 4, tLabel: 'T-1', title: 'Release candidate deployment', date: 'Nov 30', done: false, note: 'Canary cluster primed on edge' },
+      { id: 5, tLabel: 'T-0', title: 'Production DNS switch', date: 'Dec 01', done: false, note: 'Live customer onboarding' }
     ]
   }
 ];
@@ -149,29 +170,20 @@ export const DEVICE_PROFILES = {
     name: 'iPhone 16 Pro',
     aspect: 'aspect-[9/19.5]',
     width: 390,
-    height: 844,
-    wallpaperWidth: 1179,
-    wallpaperHeight: 2556,
-    notchType: 'dynamic-island'
+    height: 844
   },
   pixel9pro: {
     id: 'pixel9pro',
     name: 'Pixel 9 Pro',
     aspect: 'aspect-[9/20]',
     width: 392,
-    height: 852,
-    wallpaperWidth: 1280,
-    wallpaperHeight: 2856,
-    notchType: 'punch-hole'
+    height: 852
   },
   desktop4k: {
     id: 'desktop4k',
     name: 'MacBook Pro 16"',
     aspect: 'aspect-[16/10]',
     width: 780,
-    height: 488,
-    wallpaperWidth: 2560,
-    wallpaperHeight: 1600,
-    notchType: 'mac-notch'
+    height: 488
   }
 };

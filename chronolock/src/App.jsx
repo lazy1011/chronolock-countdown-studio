@@ -19,7 +19,7 @@ import ExportModal from './components/ExportModal';
 import SubmissionKitModal from './components/SubmissionKitModal';
 import ThreeQuestionWizard from './components/ThreeQuestionWizard';
 
-import { PRESET_DEADLINES, PRESET_THEMES, DEVICE_PROFILES } from './constants/presets';
+import { PRESET_DEADLINES, WALLPAPER_BACKGROUNDS, DEVICE_PROFILES } from './constants/presets';
 import { calculateTimeRemaining } from './utils/aiScheduler';
 
 export default function App() {
@@ -35,7 +35,7 @@ export default function App() {
   });
 
   const [milestones, setMilestones] = useState(defaultPreset.milestones);
-  const [themeId, setThemeId] = useState(defaultPreset.theme);
+  const [selectedBgId, setSelectedBgId] = useState('cosmic-nebula');
   const [customPalette, setCustomPalette] = useState(null);
   const [deviceProfileId, setDeviceProfileId] = useState('iphone16pro');
   const [showOsOverlay, setShowOsOverlay] = useState(true);
@@ -89,17 +89,18 @@ export default function App() {
       isLightMode ? 'bg-[#f4f4f5] text-neutral-900' : 'bg-[#09090b] text-neutral-100'
     }`}>
       {/* Top Header */}
-      <header className={`border-b sticky top-0 z-40 px-5 lg:px-8 py-3.5 flex items-center justify-between backdrop-blur-xl transition-colors ${
+      <header className={`border-b sticky top-0 z-40 px-5 lg:px-8 py-3 flex items-center justify-between backdrop-blur-xl transition-colors ${
         isLightMode 
-          ? 'border-neutral-200 bg-white/80 text-neutral-900' 
-          : 'border-neutral-800/80 bg-[#09090b]/80 text-neutral-100'
+          ? 'border-neutral-200 bg-white/85 text-neutral-900' 
+          : 'border-neutral-800/80 bg-[#09090b]/85 text-neutral-100'
       }`}>
+        {/* Brand & Logo */}
         <div className="flex items-center gap-3">
-          <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs ${
-            isLightMode ? 'bg-neutral-900 text-white' : 'bg-neutral-800 text-white border border-neutral-700'
-          }`}>
-            CL
-          </div>
+          <img 
+            src="/favicon.svg" 
+            alt="ChronoLock Logo" 
+            className="w-8 h-8 rounded-xl shadow-sm border border-neutral-700/60" 
+          />
           <div>
             <h1 className="text-sm font-semibold tracking-tight leading-none">
               ChronoLock
@@ -171,15 +172,16 @@ export default function App() {
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* LEFT / CENTER: Phone Lock Screen Preview */}
         <div className="lg:col-span-7 flex flex-col items-center justify-center space-y-4">
-          {/* Quick Mockup Options Bar */}
+          {/* Quick Mockup Options Bar (Pixel-Perfect Aligned Heights & Padding) */}
           <div className="flex items-center justify-between w-full max-w-sm px-1 text-xs text-neutral-400">
-            <div className={`flex items-center gap-1 p-1 rounded-xl border ${
+            {/* Device Switcher (Height: h-8) */}
+            <div className={`h-8 flex items-center gap-1 p-0.5 rounded-xl border ${
               isLightMode ? 'bg-white border-neutral-300' : 'bg-neutral-900 border-neutral-800'
             }`}>
               <button
                 type="button"
                 onClick={() => setDeviceProfileId('iphone16pro')}
-                className={`px-2.5 py-1 rounded-lg font-medium transition ${
+                className={`h-7 px-2.5 rounded-lg text-xs font-medium transition ${
                   deviceProfileId === 'iphone16pro' 
                     ? isLightMode ? 'bg-neutral-900 text-white' : 'bg-neutral-800 text-white' 
                     : isLightMode ? 'text-neutral-600 hover:text-black' : 'text-neutral-400 hover:text-white'
@@ -190,7 +192,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setDeviceProfileId('pixel9pro')}
-                className={`px-2.5 py-1 rounded-lg font-medium transition ${
+                className={`h-7 px-2.5 rounded-lg text-xs font-medium transition ${
                   deviceProfileId === 'pixel9pro' 
                     ? isLightMode ? 'bg-neutral-900 text-white' : 'bg-neutral-800 text-white' 
                     : isLightMode ? 'text-neutral-600 hover:text-black' : 'text-neutral-400 hover:text-white'
@@ -201,7 +203,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setDeviceProfileId('desktop4k')}
-                className={`px-2.5 py-1 rounded-lg font-medium transition ${
+                className={`h-7 px-2.5 rounded-lg text-xs font-medium transition ${
                   deviceProfileId === 'desktop4k' 
                     ? isLightMode ? 'bg-neutral-900 text-white' : 'bg-neutral-800 text-white' 
                     : isLightMode ? 'text-neutral-600 hover:text-black' : 'text-neutral-400 hover:text-white'
@@ -211,14 +213,15 @@ export default function App() {
               </button>
             </div>
 
+            {/* Hardware Controls (Height: h-8, perfectly matching side buttons) */}
             <div className="flex items-center gap-1.5">
               <button
                 type="button"
                 onClick={() => setShowOsOverlay(!showOsOverlay)}
-                className={`h-8 px-2.5 rounded-xl border text-[11px] font-medium flex items-center gap-1 transition ${
+                className={`h-8 px-2.5 rounded-xl border text-xs font-medium flex items-center gap-1 transition ${
                   showOsOverlay 
                     ? isLightMode ? 'bg-neutral-900 text-white border-neutral-900' : 'bg-neutral-800 text-white border-neutral-700' 
-                    : isLightMode ? 'bg-white text-neutral-600 border-neutral-300' : 'bg-transparent text-neutral-400 border-neutral-800 hover:text-white'
+                    : isLightMode ? 'bg-white text-neutral-600 border-neutral-300 hover:bg-neutral-100' : 'bg-neutral-900 text-neutral-400 border-neutral-800 hover:text-white'
                 }`}
                 title="Toggle simulated lock screen clock"
               >
@@ -229,10 +232,10 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setShowSafeZones(!showSafeZones)}
-                className={`h-8 px-2.5 rounded-xl border text-[11px] font-medium flex items-center gap-1 transition ${
+                className={`h-8 px-2.5 rounded-xl border text-xs font-medium flex items-center gap-1 transition ${
                   showSafeZones 
                     ? 'bg-rose-950/60 text-rose-300 border-rose-500/50' 
-                    : isLightMode ? 'bg-white text-neutral-600 border-neutral-300' : 'bg-transparent text-neutral-400 border-neutral-800 hover:text-white'
+                    : isLightMode ? 'bg-white text-neutral-600 border-neutral-300 hover:bg-neutral-100' : 'bg-neutral-900 text-neutral-400 border-neutral-800 hover:text-white'
                 }`}
                 title="Show safe zone guides"
               >
@@ -248,7 +251,7 @@ export default function App() {
               ref={previewRef}
               deadline={deadline}
               milestones={milestones}
-              themeId={themeId}
+              selectedBgId={selectedBgId}
               customPalette={customPalette}
               deviceProfileId={deviceProfileId}
               showOsOverlay={showOsOverlay}
@@ -269,8 +272,8 @@ export default function App() {
             setDeadline={setDeadline}
             milestones={milestones}
             setMilestones={setMilestones}
-            themeId={themeId}
-            setThemeId={setThemeId}
+            selectedBgId={selectedBgId}
+            setSelectedBgId={setSelectedBgId}
             customPalette={customPalette}
             setCustomPalette={setCustomPalette}
             deviceProfileId={deviceProfileId}
@@ -317,7 +320,6 @@ export default function App() {
         onClose={() => setIsAODOpen(false)}
         deadline={deadline}
         milestones={milestones}
-        themeId={themeId}
         timeRemaining={timeRemaining}
       />
 
