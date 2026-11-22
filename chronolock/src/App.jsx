@@ -1,22 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Sparkles, 
-  Smartphone, 
-  Monitor, 
   Download, 
   Maximize2, 
   Calendar, 
-  CheckCircle2, 
-  Flame, 
-  Target, 
   Award, 
   Eye, 
   EyeOff, 
-  Layers, 
-  ExternalLink,
-  ChevronRight,
-  ShieldCheck,
-  Zap
+  Layers
 } from 'lucide-react';
 
 import LockScreenPreview from './components/LockScreenPreview';
@@ -24,10 +14,6 @@ import ControlsPanel from './components/ControlsPanel';
 import AODModal from './components/AODModal';
 import ExportModal from './components/ExportModal';
 import SubmissionKitModal from './components/SubmissionKitModal';
-
-// shadcn UI
-import { Button } from './components/ui/button';
-import { Badge } from './components/ui/badge';
 
 import { PRESET_DEADLINES, PRESET_THEMES, DEVICE_PROFILES } from './constants/presets';
 import { calculateTimeRemaining } from './utils/aiScheduler';
@@ -81,69 +67,57 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-zinc-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
-      {/* Top Navbar */}
-      <header className="border-b border-zinc-800/80 bg-zinc-950/70 backdrop-blur-xl sticky top-0 z-40 px-4 lg:px-8 py-3 flex items-center justify-between">
+    <div className="min-h-screen bg-[#09090b] text-neutral-100 flex flex-col font-sans">
+      {/* Top Navigation */}
+      <header className="border-b border-neutral-800/80 bg-[#09090b]/80 backdrop-blur-xl sticky top-0 z-40 px-5 lg:px-8 py-3.5 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-cyan-400 p-0.5 shadow-md shadow-indigo-500/20">
-            <div className="w-full h-full bg-zinc-950 rounded-[14px] flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-cyan-400" />
-            </div>
+          <div className="w-8 h-8 rounded-xl bg-neutral-800 border border-neutral-700 flex items-center justify-center font-bold text-white text-xs">
+            CL
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-sm font-bold tracking-tight text-white">ChronoLock AI</h1>
-              <Badge variant="default" className="text-[10px] py-0 border-indigo-500/40 text-indigo-300 font-semibold">
-                Google × Handshake
-              </Badge>
-            </div>
-            <p className="text-[11px] text-zinc-400">Your Deadline, Your Design: Create a Countdown Lock Screen</p>
+            <h1 className="text-sm font-semibold tracking-tight text-white leading-none">
+              ChronoLock
+            </h1>
+            <span className="text-[11px] text-neutral-400 font-normal">
+              Countdown Lock Screen Studio
+            </span>
           </div>
         </div>
 
-        {/* Right Nav Actions */}
-        <div className="flex items-center gap-2.5">
-          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-zinc-900/80 border border-zinc-800 text-xs text-zinc-300">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-            <span className="font-semibold text-emerald-400">100% Rubric Match</span>
-            <span className="text-zinc-600">•</span>
-            <span className="text-zinc-400">Execution, Creativity, Usefulness, Polish</span>
-          </div>
-
-          <Button
-            variant="outline"
-            size="sm"
+        {/* Header Actions */}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
             onClick={() => setIsSubmissionKitOpen(true)}
-            className="border-amber-500/30 text-amber-300 hover:bg-amber-950/30 hover:text-white gap-1.5"
+            className="px-3 py-1.5 rounded-xl border border-neutral-700 bg-neutral-900 hover:bg-neutral-800 text-neutral-200 text-xs font-medium flex items-center gap-1.5 transition"
           >
-            <Award className="w-4 h-4 text-amber-400" />
+            <Award className="w-3.5 h-3.5 text-neutral-400" />
             <span>Submission Kit</span>
-          </Button>
+          </button>
 
-          <Button
-            variant="gradient"
-            size="sm"
+          <button
+            type="button"
             onClick={() => setIsExportOpen(true)}
-            className="gap-1.5"
+            className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-neutral-200 text-neutral-950 text-xs font-semibold flex items-center gap-1.5 transition active:scale-95 shadow-sm"
           >
-            <Download className="w-4 h-4" />
-            <span className="hidden sm:inline">Export Lock Screen</span>
-          </Button>
+            <Download className="w-3.5 h-3.5 text-neutral-900" />
+            <span>Export Wallpaper</span>
+          </button>
         </div>
       </header>
 
-      {/* Main Workspace Grid */}
+      {/* Main Studio Grid */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* LEFT / CENTER: Realistic Interactive Device Lock Screen */}
+        {/* LEFT / CENTER: Phone Lock Screen Preview */}
         <div className="lg:col-span-7 flex flex-col items-center justify-center space-y-4">
-          {/* Quick Device & Preview Controls Bar */}
-          <div className="flex items-center justify-between w-full max-w-md px-2 text-xs text-zinc-400">
-            <div className="flex items-center gap-1 bg-zinc-900/80 p-1 rounded-xl border border-zinc-800">
+          {/* Quick Mockup Options Bar */}
+          <div className="flex items-center justify-between w-full max-w-sm px-1 text-xs text-neutral-400">
+            <div className="flex items-center gap-1 bg-neutral-900 p-1 rounded-xl border border-neutral-800">
               <button
                 type="button"
                 onClick={() => setDeviceProfileId('iphone16pro')}
                 className={`px-2.5 py-1 rounded-lg font-medium transition ${
-                  deviceProfileId === 'iphone16pro' ? 'bg-indigo-600 text-white shadow-sm' : 'hover:text-zinc-200'
+                  deviceProfileId === 'iphone16pro' ? 'bg-neutral-800 text-white' : 'hover:text-neutral-200'
                 }`}
               >
                 iPhone 16 Pro
@@ -152,7 +126,7 @@ export default function App() {
                 type="button"
                 onClick={() => setDeviceProfileId('pixel9pro')}
                 className={`px-2.5 py-1 rounded-lg font-medium transition ${
-                  deviceProfileId === 'pixel9pro' ? 'bg-indigo-600 text-white shadow-sm' : 'hover:text-zinc-200'
+                  deviceProfileId === 'pixel9pro' ? 'bg-neutral-800 text-white' : 'hover:text-neutral-200'
                 }`}
               >
                 Pixel 9 Pro
@@ -161,39 +135,45 @@ export default function App() {
                 type="button"
                 onClick={() => setDeviceProfileId('desktop4k')}
                 className={`px-2.5 py-1 rounded-lg font-medium transition ${
-                  deviceProfileId === 'desktop4k' ? 'bg-indigo-600 text-white shadow-sm' : 'hover:text-zinc-200'
+                  deviceProfileId === 'desktop4k' ? 'bg-neutral-800 text-white' : 'hover:text-neutral-200'
                 }`}
               >
-                MacBook 4K
+                Desktop
               </button>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Button
-                variant={showOsOverlay ? "secondary" : "outline"}
-                size="sm"
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
                 onClick={() => setShowOsOverlay(!showOsOverlay)}
-                className="h-7 text-[11px] gap-1 px-2.5"
+                className={`px-2.5 py-1.5 rounded-xl border text-[11px] font-medium flex items-center gap-1 transition ${
+                  showOsOverlay 
+                    ? 'bg-neutral-800 text-white border-neutral-700' 
+                    : 'bg-transparent text-neutral-400 border-neutral-800 hover:text-white'
+                }`}
                 title="Toggle simulated lock screen clock"
               >
-                {showOsOverlay ? <Eye className="w-3.5 h-3.5 text-cyan-400" /> : <EyeOff className="w-3.5 h-3.5" />}
+                {showOsOverlay ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
                 <span>OS Clock</span>
-              </Button>
+              </button>
 
-              <Button
-                variant={showSafeZones ? "destructive" : "outline"}
-                size="sm"
+              <button
+                type="button"
                 onClick={() => setShowSafeZones(!showSafeZones)}
-                className="h-7 text-[11px] gap-1 px-2.5"
-                title="Show lock screen safe zones"
+                className={`px-2.5 py-1.5 rounded-xl border text-[11px] font-medium flex items-center gap-1 transition ${
+                  showSafeZones 
+                    ? 'bg-rose-950/60 text-rose-300 border-rose-500/50' 
+                    : 'bg-transparent text-neutral-400 border-neutral-800 hover:text-white'
+                }`}
+                title="Show safe zone guides"
               >
                 <Layers className="w-3.5 h-3.5" />
                 <span>Safe Zones</span>
-              </Button>
+              </button>
             </div>
           </div>
 
-          {/* Device Mockup with Lock Screen Content */}
+          {/* Realistic Device Screen Canvas */}
           <div className="w-full flex justify-center py-2">
             <LockScreenPreview
               ref={previewRef}
@@ -207,14 +187,12 @@ export default function App() {
             />
           </div>
 
-          {/* Quick Helper Badge */}
-          <div className="flex items-center gap-2 text-center text-xs text-zinc-400">
-            <span className="w-2 h-2 rounded-full bg-cyan-400" />
-            <span>Glanceable design: Dedicated safe headroom for native lock screen clock & widgets.</span>
-          </div>
+          <p className="text-xs text-neutral-500 text-center max-w-sm">
+            Top 35% safe zone unblocked for native system clock and notification widgets.
+          </p>
         </div>
 
-        {/* RIGHT: Controls & Configuration Panel */}
+        {/* RIGHT: Inspector Panel */}
         <div className="lg:col-span-5 h-full">
           <ControlsPanel
             deadline={deadline}
@@ -236,27 +214,24 @@ export default function App() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-zinc-800/80 py-4 px-6 text-center text-xs text-zinc-400 flex flex-col sm:flex-row items-center justify-between gap-3 max-w-7xl mx-auto w-full">
-        <div className="flex items-center gap-2">
-          <ShieldCheck className="w-4 h-4 text-indigo-400" />
-          <span>Handshake AI Skills Studio × Google "Your Deadline, Your Design" Challenge Submission</span>
-        </div>
-        <div className="flex items-center gap-4 text-zinc-400">
+      {/* Clean Footer */}
+      <footer className="border-t border-neutral-800/80 py-4 px-6 text-center text-xs text-neutral-500 flex flex-col sm:flex-row items-center justify-between gap-3 max-w-7xl mx-auto w-full">
+        <span>Handshake AI Skills Studio × Google "Your Deadline, Your Design" Challenge</span>
+        <div className="flex items-center gap-4 text-neutral-400">
           <button 
             type="button"
             onClick={() => setIsSubmissionKitOpen(true)} 
-            className="hover:text-indigo-400 transition underline underline-offset-4"
+            className="hover:text-white transition underline underline-offset-4"
           >
-            Review Rubric & Project Deliverables
+            Submission Kit
           </button>
           <span>•</span>
           <button 
             type="button"
             onClick={() => setIsExportOpen(true)} 
-            className="hover:text-cyan-400 transition"
+            className="hover:text-white transition"
           >
-            Export HD Wallpapers
+            Export Wallpaper
           </button>
         </div>
       </footer>

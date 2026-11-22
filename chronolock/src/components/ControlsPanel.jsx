@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { 
-  Sparkles, 
-  Palette, 
   Smartphone, 
   Monitor, 
   Calendar, 
@@ -11,30 +9,17 @@ import {
   Check, 
   CheckCircle2, 
   Circle, 
-  Wand2, 
+  Sparkles, 
   Download, 
   Maximize2, 
   FileText, 
   Layers,
-  ArrowRight,
-  Flame,
-  ShieldCheck,
-  Zap,
-  Sliders
+  ArrowRight
 } from 'lucide-react';
 
 import { PRESET_DEADLINES, PRESET_THEMES, DEVICE_PROFILES } from '../constants/presets';
 import { generateGeminiMilestones } from '../utils/aiScheduler';
 import { exportToICS } from '../utils/calendarExport';
-
-// shadcn/ui components
-import { Button } from './ui/button';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
-import { Badge } from './ui/badge';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
-import { Switch } from './ui/switch';
-import { Input } from './ui/input';
-import { Textarea } from './ui/textarea';
 
 export default function ControlsPanel({
   deadline,
@@ -53,9 +38,8 @@ export default function ControlsPanel({
   onOpenExport,
   onOpenSubmissionKit
 }) {
-  const [isAiGenerating, setIsAiGenerating] = useState(false);
-  const [geminiApiKey, setGeminiApiKey] = useState('');
-  const [showApiKeyInput, setShowApiKeyInput] = useState(false);
+  const [activeTab, setActiveTab] = useState('milestones'); // 'milestones' | 'style' | 'deadline'
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const handleSelectPreset = (preset) => {
     setDeadline({
@@ -84,22 +68,21 @@ export default function ControlsPanel({
       ...milestones,
       {
         id: nextId,
-        title: 'New Milestone Checkpoint',
+        title: 'New checkpoint',
         date: 'Scheduled',
         done: false,
-        note: 'High-leverage focus task'
+        note: 'Key execution task'
       }
     ]);
   };
 
-  const handleAiDecompose = async () => {
-    setIsAiGenerating(true);
+  const handleScheduleGeneration = async () => {
+    setIsGenerating(true);
     try {
       const generated = await generateGeminiMilestones(
         deadline.title,
         deadline.category,
-        deadline.targetDate,
-        geminiApiKey
+        deadline.targetDate
       );
       if (generated && generated.length > 0) {
         setMilestones(generated);
@@ -107,141 +90,121 @@ export default function ControlsPanel({
     } catch (e) {
       console.error(e);
     } finally {
-      setIsAiGenerating(false);
+      setIsGenerating(false);
     }
   };
 
   return (
-    <Card className="h-full flex flex-col border-zinc-800/80 bg-zinc-950/85 shadow-2xl backdrop-blur-2xl p-5">
-      {/* Top Header & Submission Kit Trigger */}
+    <div className="h-full flex flex-col bg-[#111114] border border-neutral-800 rounded-3xl p-5 shadow-2xl">
+      {/* Inspector Top Bar */}
       <div className="mb-4">
-        <div className="flex items-center justify-between mb-3.5">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-500 to-cyan-400 flex items-center justify-center text-white shadow-md shadow-indigo-500/25">
-              <Sparkles className="w-4 h-4" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-sm font-bold text-white tracking-tight">Studio Configuration</h2>
-                <Badge variant="outline" className="text-[10px] py-0 text-cyan-400 border-cyan-500/30">
-                  v1.2
-                </Badge>
-              </div>
-              <p className="text-[11px] text-zinc-400">Your Deadline, Your Design</p>
-            </div>
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h2 className="text-sm font-semibold text-white tracking-tight">Inspector</h2>
+            <p className="text-xs text-neutral-400">Lock screen layout & countdown</p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
+          <button
+            type="button"
             onClick={onOpenSubmissionKit}
-            className="border-indigo-500/30 text-indigo-300 hover:bg-indigo-950/40 hover:text-white gap-1.5"
+            className="px-3 py-1.5 rounded-xl border border-neutral-700 bg-neutral-900 hover:bg-neutral-800 text-neutral-200 text-xs font-medium flex items-center gap-1.5 transition"
           >
-            <FileText className="w-3.5 h-3.5 text-cyan-400" />
+            <FileText className="w-3.5 h-3.5 text-neutral-400" />
             <span>Submission Kit</span>
-          </Button>
+          </button>
         </div>
 
-        {/* Quick Presets Pills */}
+        {/* Preset Selector */}
         <div className="space-y-1.5">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">Quick Presets</span>
-            <span className="text-[10px] text-zinc-500">1-click presets</span>
-          </div>
-          <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+          <label className="text-[11px] font-medium text-neutral-400 block">Presets</label>
+          <div className="grid grid-cols-2 gap-1.5">
             {PRESET_DEADLINES.map(p => (
               <button
                 key={p.id}
+                type="button"
                 onClick={() => handleSelectPreset(p)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all border ${
+                className={`px-3 py-2 rounded-xl text-xs font-medium text-left truncate border transition ${
                   deadline.title === p.title
-                    ? 'bg-indigo-600 text-white border-indigo-500 shadow-md shadow-indigo-600/30'
-                    : 'bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 border-zinc-800'
+                    ? 'bg-neutral-800 text-white border-neutral-600'
+                    : 'bg-neutral-900/60 hover:bg-neutral-800/80 text-neutral-400 border-neutral-800/80'
                 }`}
               >
-                {p.title.split(' ')[0]} {p.category.includes('Competition') ? '🏆' : ''}
+                {p.title}
               </button>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Tabs Layout */}
-      <Tabs defaultValue="milestones" className="flex-1 flex flex-col overflow-hidden">
-        <TabsList className="grid grid-cols-3 w-full bg-zinc-900/90 border border-zinc-800/80 p-1 mb-3">
-          <TabsTrigger value="milestones" className="gap-1.5 text-xs">
-            <Layers className="w-3.5 h-3.5" />
-            <span>Milestones ({milestones.length})</span>
-          </TabsTrigger>
-          <TabsTrigger value="style" className="gap-1.5 text-xs">
-            <Palette className="w-3.5 h-3.5" />
-            <span>Theme & Safe Zones</span>
-          </TabsTrigger>
-          <TabsTrigger value="deadline" className="gap-1.5 text-xs">
-            <Clock className="w-3.5 h-3.5" />
-            <span>Deadline Details</span>
-          </TabsTrigger>
-        </TabsList>
+      {/* Segmented Control Tabs */}
+      <div className="grid grid-cols-3 gap-1 p-1 bg-neutral-900 border border-neutral-800 rounded-xl mb-4 text-xs font-medium">
+        <button
+          type="button"
+          onClick={() => setActiveTab('milestones')}
+          className={`py-1.5 rounded-lg transition ${
+            activeTab === 'milestones'
+              ? 'bg-neutral-800 text-white font-semibold'
+              : 'text-neutral-400 hover:text-neutral-200'
+          }`}
+        >
+          Milestones ({milestones.length})
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('style')}
+          className={`py-1.5 rounded-lg transition ${
+            activeTab === 'style'
+              ? 'bg-neutral-800 text-white font-semibold'
+              : 'text-neutral-400 hover:text-neutral-200'
+          }`}
+        >
+          Style & Device
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('deadline')}
+          className={`py-1.5 rounded-lg transition ${
+            activeTab === 'deadline'
+              ? 'bg-neutral-800 text-white font-semibold'
+              : 'text-neutral-400 hover:text-neutral-200'
+          }`}
+        >
+          Deadline
+        </button>
+      </div>
 
-        <div className="flex-1 overflow-y-auto pr-1">
-          {/* TAB 1: MILESTONES */}
-          <TabsContent value="milestones" className="space-y-3 mt-0">
-            {/* AI Backward Planner Card */}
-            <Card className="border-indigo-500/30 bg-gradient-to-br from-indigo-950/40 via-zinc-900/60 to-purple-950/30 p-3.5 shadow-inner">
-              <div className="flex items-center justify-between mb-1.5">
-                <div className="flex items-center gap-2">
-                  <Wand2 className="w-4 h-4 text-cyan-400 animate-pulse" />
-                  <span className="text-xs font-bold text-white">Gemini AI Backward Planner</span>
-                </div>
-                <Button
-                  size="sm"
-                  onClick={handleAiDecompose}
-                  disabled={isAiGenerating}
-                  className="h-7 text-[11px] gap-1 bg-indigo-600 hover:bg-indigo-500"
-                >
-                  <Sparkles className="w-3 h-3 text-amber-300" />
-                  {isAiGenerating ? 'Synthesizing...' : 'Auto-Decompose'}
-                </Button>
-              </div>
-              <p className="text-[11px] text-zinc-400 leading-relaxed">
-                Reverse-engineers target date into 5 tactical checkpoints leading directly to the finish line.
-              </p>
+      {/* Tab Panels */}
+      <div className="flex-1 overflow-y-auto pr-1">
+        {/* TAB 1: MILESTONES */}
+        {activeTab === 'milestones' && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between pb-1 border-b border-neutral-800">
+              <span className="text-xs text-neutral-400">Backward checkpoints</span>
+              <button
+                type="button"
+                onClick={handleScheduleGeneration}
+                disabled={isGenerating}
+                className="text-xs text-neutral-300 hover:text-white transition flex items-center gap-1 font-medium disabled:opacity-50"
+              >
+                <Sparkles className="w-3 h-3 text-amber-400" />
+                <span>{isGenerating ? 'Calculating...' : 'Recalculate schedule'}</span>
+              </button>
+            </div>
 
-              <div className="mt-2 pt-1.5 border-t border-zinc-800/60">
-                <button
-                  type="button"
-                  onClick={() => setShowApiKeyInput(!showApiKeyInput)}
-                  className="text-[10px] text-indigo-400 hover:text-indigo-300 transition flex items-center gap-1"
-                >
-                  <span>{showApiKeyInput ? 'Hide Custom Gemini Key' : '+ Add custom Google Gemini API key'}</span>
-                </button>
-                {showApiKeyInput && (
-                  <Input
-                    type="password"
-                    placeholder="Enter Google Gemini API key (optional)"
-                    value={geminiApiKey}
-                    onChange={(e) => setGeminiApiKey(e.target.value)}
-                    className="mt-1.5 h-8 text-[11px] bg-black/60 border-zinc-800"
-                  />
-                )}
-              </div>
-            </Card>
-
-            {/* Milestones Checkpoint List */}
             <div className="space-y-2">
               {milestones.map((m, idx) => (
                 <div
                   key={m.id || idx}
-                  className="p-2.5 rounded-xl bg-zinc-900/80 border border-zinc-800/80 flex items-start gap-2.5 group hover:border-zinc-700 transition"
+                  className="p-2.5 rounded-xl bg-neutral-900/70 border border-neutral-800/80 flex items-start gap-2.5 group hover:border-neutral-700 transition"
                 >
                   <button
                     type="button"
                     onClick={() => handleToggleMilestone(m.id)}
-                    className="mt-1 flex-shrink-0 text-zinc-500 hover:text-emerald-400 transition"
+                    className="mt-1 flex-shrink-0 text-neutral-500 hover:text-emerald-400 transition"
                   >
                     {m.done ? (
                       <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                     ) : (
-                      <Circle className="w-4 h-4 text-zinc-600 hover:text-zinc-400" />
+                      <Circle className="w-4 h-4 text-neutral-600 hover:text-neutral-400" />
                     )}
                   </button>
 
@@ -254,7 +217,7 @@ export default function ControlsPanel({
                           const val = e.target.value;
                           setMilestones(prev => prev.map(item => item.id === m.id ? { ...item, title: val } : item));
                         }}
-                        className={`w-full text-xs font-semibold bg-transparent border-b border-transparent hover:border-zinc-700 focus:border-indigo-500 focus:outline-none transition ${m.done ? 'line-through text-zinc-500' : 'text-zinc-100'}`}
+                        className={`w-full text-xs font-medium bg-transparent border-b border-transparent hover:border-neutral-700 focus:border-neutral-500 focus:outline-none transition ${m.done ? 'line-through text-neutral-500' : 'text-neutral-100'}`}
                       />
                       <input
                         type="text"
@@ -263,25 +226,25 @@ export default function ControlsPanel({
                           const val = e.target.value;
                           setMilestones(prev => prev.map(item => item.id === m.id ? { ...item, date: val } : item));
                         }}
-                        className="w-24 text-[10px] font-mono text-right text-zinc-400 bg-transparent border-b border-transparent hover:border-zinc-700 focus:border-indigo-500 focus:outline-none flex-shrink-0"
+                        className="w-20 text-[10px] font-mono text-right text-neutral-400 bg-transparent border-b border-transparent hover:border-neutral-700 focus:border-neutral-500 focus:outline-none flex-shrink-0"
                       />
                     </div>
                     <input
                       type="text"
-                      placeholder="High-leverage action note"
+                      placeholder="Action note"
                       value={m.note || ''}
                       onChange={(e) => {
                         const val = e.target.value;
                         setMilestones(prev => prev.map(item => item.id === m.id ? { ...item, note: val } : item));
                       }}
-                      className="w-full text-[10px] text-zinc-400 bg-transparent border-b border-transparent hover:border-zinc-700 focus:border-indigo-500 focus:outline-none"
+                      className="w-full text-[10px] text-neutral-400 bg-transparent border-b border-transparent hover:border-neutral-700 focus:border-neutral-500 focus:outline-none"
                     />
                   </div>
 
                   <button
                     type="button"
                     onClick={() => handleDeleteMilestone(m.id)}
-                    className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-rose-400 p-1 transition"
+                    className="opacity-0 group-hover:opacity-100 text-neutral-500 hover:text-rose-400 p-1 transition"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -289,199 +252,191 @@ export default function ControlsPanel({
               ))}
             </div>
 
-            <Button
-              variant="outline"
-              size="sm"
+            <button
+              type="button"
               onClick={handleAddMilestone}
-              className="w-full border-dashed border-zinc-700 hover:border-zinc-600 gap-1.5"
+              className="w-full py-2.5 rounded-xl border border-dashed border-neutral-700 hover:border-neutral-600 text-xs font-medium text-neutral-300 flex items-center justify-center gap-1.5 transition"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>Add Custom Milestone Checkpoint</span>
-            </Button>
-          </TabsContent>
+              <span>Add checkpoint</span>
+            </button>
+          </div>
+        )}
 
-          {/* TAB 2: STYLE & DEVICE */}
-          <TabsContent value="style" className="space-y-4 mt-0">
+        {/* TAB 2: STYLE & DEVICE */}
+        {activeTab === 'style' && (
+          <div className="space-y-4">
             {/* Device Profiles */}
-            <div>
-              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block mb-2">
-                Device Mockup Preview
-              </span>
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-medium text-neutral-400 block">Device Mockup</label>
               <div className="grid grid-cols-3 gap-2">
                 {Object.values(DEVICE_PROFILES).map(d => (
                   <button
                     key={d.id}
+                    type="button"
                     onClick={() => setDeviceProfileId(d.id)}
                     className={`p-2.5 rounded-xl text-left border transition ${
                       deviceProfileId === d.id
-                        ? 'bg-indigo-600/15 border-indigo-500 text-white shadow-sm'
-                        : 'bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-zinc-200'
+                        ? 'bg-neutral-800 text-white border-neutral-600'
+                        : 'bg-neutral-900/60 border-neutral-800 text-neutral-400 hover:text-neutral-200'
                     }`}
                   >
-                    <div className="flex items-center gap-1.5 mb-1">
-                      {d.id === 'desktop4k' ? <Monitor className="w-3.5 h-3.5 text-cyan-400" /> : <Smartphone className="w-3.5 h-3.5 text-indigo-400" />}
-                      <span className="text-xs font-bold leading-none">{d.id === 'iphone16pro' ? 'iPhone' : d.id === 'pixel9pro' ? 'Pixel 9' : 'Desktop'}</span>
-                    </div>
-                    <span className="text-[9px] text-zinc-500 block">{d.name}</span>
+                    <div className="text-xs font-semibold">{d.name.split(' ')[0]}</div>
+                    <span className="text-[10px] text-neutral-500 block truncate">{d.name}</span>
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Radix Switches for Lock Screen Controls */}
-            <Card className="p-3.5 space-y-3 bg-zinc-900/60 border-zinc-800">
-              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
-                Lock Screen Hardware Controls
-              </span>
+            {/* Display Switches */}
+            <div className="p-3.5 rounded-2xl bg-neutral-900 border border-neutral-800 space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-xs font-medium text-zinc-200 block">Show Native OS Clock</span>
-                  <span className="text-[10px] text-zinc-400">Simulate native lock screen clock & widgets</span>
+                  <span className="text-xs font-medium text-neutral-200 block">Simulate native lock screen clock</span>
+                  <span className="text-[10px] text-neutral-500">Preview with system time & widgets</span>
                 </div>
-                <Switch
+                <input
+                  type="checkbox"
                   checked={showOsOverlay}
-                  onCheckedChange={setShowOsOverlay}
+                  onChange={(e) => setShowOsOverlay(e.target.checked)}
+                  className="w-4 h-4 rounded text-neutral-600 bg-neutral-950 border-neutral-700"
                 />
               </div>
 
-              <div className="flex items-center justify-between pt-2.5 border-t border-zinc-800/80">
+              <div className="flex items-center justify-between pt-2.5 border-t border-neutral-800">
                 <div>
-                  <span className="text-xs font-medium text-zinc-200 block">Safe Zone Overlays</span>
-                  <span className="text-[10px] text-zinc-400">Inspect negative space reserved for clock/icons</span>
+                  <span className="text-xs font-medium text-neutral-200 block">Safe zone guides</span>
+                  <span className="text-[10px] text-neutral-500">Highlight reserved hardware zones</span>
                 </div>
-                <Switch
+                <input
+                  type="checkbox"
                   checked={showSafeZones}
-                  onCheckedChange={setShowSafeZones}
+                  onChange={(e) => setShowSafeZones(e.target.checked)}
+                  className="w-4 h-4 rounded text-neutral-600 bg-neutral-950 border-neutral-700"
                 />
               </div>
-            </Card>
+            </div>
 
             {/* Theme Presets */}
-            <div>
-              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block mb-2">
-                Aesthetic Color Theme
-              </span>
-              <div className="space-y-2">
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-medium text-neutral-400 block">Color Theme</label>
+              <div className="space-y-1.5">
                 {Object.values(PRESET_THEMES).map(t => (
                   <button
                     key={t.id}
+                    type="button"
                     onClick={() => setThemeId(t.id)}
                     className={`w-full p-2.5 rounded-xl border flex items-center justify-between text-left transition ${
                       themeId === t.id
-                        ? 'bg-indigo-950/40 border-indigo-500 shadow-sm'
-                        : 'bg-zinc-900/60 border-zinc-800/80 hover:border-zinc-700'
+                        ? 'bg-neutral-800/80 border-neutral-600 text-white'
+                        : 'bg-neutral-900/60 border-neutral-800/80 hover:border-neutral-700 text-neutral-300'
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
                       <div 
-                        className="w-5 h-5 rounded-full border border-white/20 shadow-inner"
-                        style={{ backgroundColor: t.primaryColor }}
+                        className="w-4 h-4 rounded-full border border-white/20"
+                        style={{ backgroundColor: t.accent }}
                       />
                       <div>
-                        <span className="text-xs font-bold text-white block">{t.name}</span>
-                        <span className="text-[10px] text-zinc-400">{t.description}</span>
+                        <span className="text-xs font-semibold block">{t.name}</span>
+                        <span className="text-[10px] text-neutral-500">{t.category}</span>
                       </div>
                     </div>
-                    {themeId === t.id && <Check className="w-4 h-4 text-indigo-400" />}
+                    {themeId === t.id && <Check className="w-4 h-4 text-white" />}
                   </button>
                 ))}
               </div>
             </div>
-          </TabsContent>
+          </div>
+        )}
 
-          {/* TAB 3: DEADLINE DETAILS */}
-          <TabsContent value="deadline" className="space-y-3.5 mt-0">
+        {/* TAB 3: DEADLINE DETAILS */}
+        {activeTab === 'deadline' && (
+          <div className="space-y-3.5">
             <div className="space-y-1">
-              <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
-                Project / Deadline Name
-              </label>
-              <Input
+              <label className="text-[11px] font-medium text-neutral-400 block">Project Title</label>
+              <input
                 type="text"
                 value={deadline.title}
                 onChange={(e) => setDeadline({ ...deadline, title: e.target.value })}
+                className="w-full px-3 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-neutral-600"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
-                Target Date & Time (ISO)
-              </label>
-              <Input
+              <label className="text-[11px] font-medium text-neutral-400 block">Target Date & Time</label>
+              <input
                 type="datetime-local"
                 value={deadline.targetDate.slice(0, 16)}
                 onChange={(e) => setDeadline({ ...deadline, targetDate: e.target.value })}
-                className="font-mono text-xs"
+                className="w-full px-3 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white font-mono focus:outline-none focus:border-neutral-600"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
-                Category
-              </label>
-              <Input
+              <label className="text-[11px] font-medium text-neutral-400 block">Category</label>
+              <input
                 type="text"
                 value={deadline.category}
                 onChange={(e) => setDeadline({ ...deadline, category: e.target.value })}
+                className="w-full px-3 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-neutral-600"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
-                Tagline / Subtext
-              </label>
-              <Input
+              <label className="text-[11px] font-medium text-neutral-400 block">Tagline</label>
+              <input
                 type="text"
                 value={deadline.tagline}
                 onChange={(e) => setDeadline({ ...deadline, tagline: e.target.value })}
+                className="w-full px-3 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-neutral-600"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
-                Motivational Daily Anchor
-              </label>
-              <Textarea
+              <label className="text-[11px] font-medium text-neutral-400 block">Motivational Anchor</label>
+              <textarea
                 rows={2}
                 value={deadline.dailyAnchor || ''}
                 onChange={(e) => setDeadline({ ...deadline, dailyAnchor: e.target.value })}
+                className="w-full px-3 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-neutral-600"
               />
             </div>
-          </TabsContent>
-        </div>
-      </Tabs>
+          </div>
+        )}
+      </div>
 
       {/* Sticky Bottom Actions */}
-      <div className="pt-3.5 mt-2 border-t border-zinc-800/80 flex flex-col gap-2">
+      <div className="pt-3.5 mt-2 border-t border-neutral-800 flex flex-col gap-2">
         <div className="grid grid-cols-2 gap-2">
-          <Button
-            variant="secondary"
+          <button
+            type="button"
             onClick={onOpenAOD}
-            className="gap-1.5"
+            className="py-2.5 px-3 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-neutral-200 text-xs font-medium border border-neutral-800 flex items-center justify-center gap-1.5 transition"
           >
-            <Maximize2 className="w-3.5 h-3.5 text-amber-400" />
+            <Maximize2 className="w-3.5 h-3.5 text-neutral-400" />
             <span>Always-On Mode</span>
-          </Button>
+          </button>
 
-          <Button
-            variant="secondary"
+          <button
+            type="button"
             onClick={() => exportToICS(deadline, milestones)}
-            className="gap-1.5"
+            className="py-2.5 px-3 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-neutral-200 text-xs font-medium border border-neutral-800 flex items-center justify-center gap-1.5 transition"
           >
-            <Calendar className="w-3.5 h-3.5 text-cyan-400" />
+            <Calendar className="w-3.5 h-3.5 text-neutral-400" />
             <span>Sync Calendar</span>
-          </Button>
+          </button>
         </div>
 
-        <Button
-          variant="gradient"
-          size="lg"
+        <button
+          type="button"
           onClick={onOpenExport}
-          className="gap-2"
+          className="w-full py-3 rounded-xl bg-white hover:bg-neutral-200 text-neutral-950 text-xs font-semibold flex items-center justify-center gap-2 transition active:scale-[0.99] shadow-md"
         >
-          <Download className="w-4 h-4" />
-          <span>Export Lock Screen Wallpaper (HD)</span>
-        </Button>
+          <Download className="w-4 h-4 text-neutral-900" />
+          <span>Download Lock Screen Wallpaper</span>
+        </button>
       </div>
-    </Card>
+    </div>
   );
 }
